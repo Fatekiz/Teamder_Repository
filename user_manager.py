@@ -17,7 +17,7 @@ class UserManager:
 
     def guardar_usuarios(self, usuarios):
         with open(ARCHIVO_USUARIOS, "w") as f:
-            json.dump(usuarios, f)
+            json.dump(usuarios, f, indent=4)
 
     def es_email_valido(self, email):
         patron = r'^[\w\.-]+@[\w\.-]+\.\w+$'
