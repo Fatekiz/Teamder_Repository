@@ -30,5 +30,3 @@ class AdminWindow:
             ForoWindow(foro_window, self.usuario, is_admin=True)
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo abrir el foro: {e}")
-            # Alternativa si el archivo no existe o hay otro problema
-            # subprocess.Popen(["python", "foro.py", "--usuario", self.usuario, "--admin", "true"])
