@@ -17,19 +17,22 @@ class ForoWindow:
         data_file (str): Ruta del archivo JSON para almacenar los mensajes.
         botones_respuestas (list): Almacena referencias a los botones de las respuestas.
         mensajes (list): Lista de diccionarios que contienen los mensajes del foro.
+        is_admin (bool): Indica si el usuario actual tiene privilegios de administrador.
     """
-    def __init__(self, master, usuario):
+    def __init__(self, master, usuario, is_admin=False):
         """
         Inicializa la ventana del foro.
         
         Args:
             master (tk.Tk): La ventana principal de Tkinter.
             usuario (str): Nombre del usuario que ha iniciado sesión.
+            is_admin (bool): Indica si el usuario tiene privilegios de administrador.
         """
         self.master = master
         self.master.title("Tkinder - Foro")
         self.master.geometry("1000x800")
         self.usuario = usuario
+        self.is_admin = is_admin
         
         # Archivo para guardar los mensajes
         self.data_file = "foro_data.json"
@@ -227,8 +230,8 @@ class ForoWindow:
         if not mensaje:
             return
             
-        # Habilitar/deshabilitar botones según si el usuario es el autor
-        if mensaje["usuario"] == self.usuario:
+        # Habilitar/deshabilitar botones según si el usuario es el autor o administrador
+        if mensaje["usuario"] == self.usuario or self.is_admin:
             self.btn_editar.config(state=tk.NORMAL)
             self.btn_eliminar.config(state=tk.NORMAL)
         else:
@@ -273,8 +276,8 @@ class ForoWindow:
                 texto_respuesta.insert(tk.END, respuesta['contenido'])
                 texto_respuesta.config(state=tk.DISABLED)
                 
-                # Botones de editar/eliminar solo para respuestas del usuario actual
-                if respuesta['usuario'] == self.usuario:
+                # Botones de editar/eliminar para respuestas del usuario actual o para admin
+                if respuesta['usuario'] == self.usuario or self.is_admin:
                     frame_botones = ttk.Frame(frame_respuesta)
                     frame_botones.pack(fill=tk.X, padx=5, pady=2, anchor=tk.E)
                     
@@ -293,7 +296,7 @@ class ForoWindow:
     
     def editar_respuesta(self, id_respuesta):
         """
-        Permite al usuario editar su propia respuesta.
+        Permite al usuario editar su propia respuesta o al administrador editar cualquier respuesta.
         
         Abre una ventana para editar el contenido de una respuesta y actualiza los datos.
         
@@ -310,7 +313,7 @@ class ForoWindow:
         for mensaje in self.mensajes:
             if mensaje["id"] == tema_id:
                 for respuesta in mensaje["respuestas"]:
-                    if respuesta["id"] == id_respuesta and respuesta["usuario"] == self.usuario:
+                    if respuesta["id"] == id_respuesta and (respuesta["usuario"] == self.usuario or self.is_admin):
                         # Abrir ventana de edición
                         ventana_editar = tk.Toplevel(self.master)
                         ventana_editar.title("Editar respuesta")
@@ -328,7 +331,12 @@ class ForoWindow:
                                 return
                                 
                             respuesta["contenido"] = nuevo_contenido
-                            respuesta["fecha"] = datetime.datetime.now().strftime("%Y-%m-%d") + " (editado)"
+                            
+                            # Agregar nota si un administrador ha editado el mensaje
+                            if self.is_admin and respuesta["usuario"] != self.usuario:
+                                respuesta["fecha"] = datetime.datetime.now().strftime("%Y-%m-%d") + " (editado por admin)"
+                            else:
+                                respuesta["fecha"] = datetime.datetime.now().strftime("%Y-%m-%d") + " (editado)"
                             
                             self.guardar_mensajes()
                             self.mostrar_tema(None)
@@ -342,7 +350,7 @@ class ForoWindow:
     
     def eliminar_respuesta(self, id_respuesta):
         """
-        Elimina una respuesta creada por el usuario.
+        Elimina una respuesta creada por el usuario o cualquier respuesta si es administrador.
         
         Pide confirmación antes de eliminar y actualiza los datos y la vista.
         
@@ -362,13 +370,22 @@ class ForoWindow:
         # Buscar el mensaje y eliminar la respuesta
         for mensaje in self.mensajes:
             if mensaje["id"] == tema_id:
-                mensaje["respuestas"] = [r for r in mensaje["respuestas"] 
-                                        if not (r["id"] == id_respuesta and r["usuario"] == self.usuario)]
-                
-                self.guardar_mensajes()
-                self.mostrar_tema(None)
-                messagebox.showinfo("Éxito", "Respuesta eliminada correctamente")
-                return
+                # Si es admin, puede eliminar cualquier respuesta
+                if self.is_admin:
+                    mensaje["respuestas"] = [r for r in mensaje["respuestas"] if r["id"] != id_respuesta]
+                    self.guardar_mensajes()
+                    self.mostrar_tema(None)
+                    messagebox.showinfo("Éxito", "Respuesta eliminada correctamente (acción de administrador)")
+                    return
+                else:
+                    # Si no es admin, solo puede eliminar sus propias respuestas
+                    mensaje["respuestas"] = [r for r in mensaje["respuestas"] 
+                                           if not (r["id"] == id_respuesta and r["usuario"] == self.usuario)]
+                    
+                    self.guardar_mensajes()
+                    self.mostrar_tema(None)
+                    messagebox.showinfo("Éxito", "Respuesta eliminada correctamente")
+                    return
     
     def enviar_respuesta(self):
         """
@@ -479,9 +496,9 @@ class ForoWindow:
     
     def editar_tema(self):
         """
-        Permite al usuario editar su propio tema.
+        Permite al usuario editar su propio tema o al administrador editar cualquier tema.
         
-        Verifica que el usuario sea el autor del tema antes de permitir la edición.
+        Verifica que el usuario sea el autor del tema o administrador antes de permitir la edición.
         Abre una ventana para editar el título y contenido del tema.
         """
         seleccion = self.lista_temas.selection()
@@ -492,7 +509,7 @@ class ForoWindow:
         
         # Buscar el mensaje
         for mensaje in self.mensajes:
-            if mensaje["id"] == tema_id and mensaje["usuario"] == self.usuario:
+            if mensaje["id"] == tema_id and (mensaje["usuario"] == self.usuario or self.is_admin):
                 # Abrir ventana de edición
                 ventana_editar = tk.Toplevel(self.master)
                 ventana_editar.title("Editar tema")
@@ -518,7 +535,12 @@ class ForoWindow:
                         
                     mensaje["titulo"] = titulo
                     mensaje["contenido"] = contenido
-                    mensaje["fecha"] = datetime.datetime.now().strftime("%Y-%m-%d") + " (editado)"
+                    
+                    # Agregar nota si un administrador ha editado el mensaje
+                    if self.is_admin and mensaje["usuario"] != self.usuario:
+                        mensaje["fecha"] = datetime.datetime.now().strftime("%Y-%m-%d") + " (editado por admin)"
+                    else:
+                        mensaje["fecha"] = datetime.datetime.now().strftime("%Y-%m-%d") + " (editado)"
                     
                     self.guardar_mensajes()
                     
@@ -534,14 +556,14 @@ class ForoWindow:
                            command=guardar_cambios).pack(pady=10)
                 return
                 
-        # Si llegamos aquí, no se encontró el tema o el usuario no es el autor
+        # Si llegamos aquí, no se encontró el tema o el usuario no es el autor ni administrador
         messagebox.showerror("Error", "No tienes permiso para editar este tema")
     
     def eliminar_tema(self):
         """
-        Elimina un tema creado por el usuario.
+        Elimina un tema creado por el usuario o cualquier tema si es administrador.
         
-        Verifica que el usuario sea el autor del tema antes de permitir la eliminación.
+        Verifica que el usuario sea el autor del tema o administrador antes de permitir la eliminación.
         Pide confirmación y actualiza la vista después de eliminar el tema.
         """
         seleccion = self.lista_temas.selection()
@@ -550,12 +572,16 @@ class ForoWindow:
             
         tema_id = int(seleccion[0])
         
-        # Verificar que el usuario sea el autor
+        # Verificar que el usuario sea el autor o administrador
         tema_encontrado = False
+        es_autor = False
+        
         for mensaje in self.mensajes:
             if mensaje["id"] == tema_id:
                 tema_encontrado = True
-                if mensaje["usuario"] != self.usuario:
+                if mensaje["usuario"] == self.usuario:
+                    es_autor = True
+                elif not self.is_admin:
                     messagebox.showerror("Error", "No tienes permiso para eliminar este tema")
                     return
         
@@ -564,8 +590,12 @@ class ForoWindow:
             return
             
         # Pedir confirmación
-        if not messagebox.askyesno("Confirmar", "¿Estás seguro de eliminar este tema y todas sus respuestas?"):
-            return
+        if self.is_admin and not es_autor:
+            if not messagebox.askyesno("Confirmar", "¿Estás seguro de eliminar este tema como administrador?"):
+                return
+        else:
+            if not messagebox.askyesno("Confirmar", "¿Estás seguro de eliminar este tema y todas sus respuestas?"):
+                return
             
         # Eliminar el tema
         self.mensajes = [m for m in self.mensajes if m["id"] != tema_id]
@@ -589,4 +619,7 @@ class ForoWindow:
         self.btn_editar.config(state=tk.DISABLED)
         self.btn_eliminar.config(state=tk.DISABLED)
         
-        messagebox.showinfo("Éxito", "Tema eliminado correctamente")
+        if self.is_admin and not es_autor:
+            messagebox.showinfo("Éxito", "Tema eliminado correctamente (acción de administrador)")
+        else:
+            messagebox.showinfo("Éxito", "Tema eliminado correctamente")

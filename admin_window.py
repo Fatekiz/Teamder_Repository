@@ -6,10 +6,10 @@ class AdminWindow:
         self.master = master
         self.master.title("Tkinder Admin Panel")
         self.master.geometry("400x300")
-
+        self.usuario = usuario
         tk.Label(master, text=f"Bienvenido, {usuario} (Admin)", font=("Arial", 14)).pack(pady=10)
-
         tk.Button(master, text="Ver todos los usuarios", command=self.ver_usuarios).pack(pady=5)
+        tk.Button(master, text="Acceder al Foro", command=self.abrir_foro).pack(pady=5)       
         tk.Button(master, text="Cerrar", command=self.master.destroy).pack(pady=5)
 
     def ver_usuarios(self):
@@ -21,3 +21,14 @@ class AdminWindow:
             messagebox.showinfo("Usuarios Registrados", mensaje)
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo cargar usuarios: {e}")
+            
+    def abrir_foro(self):
+        try:
+            from foro_window import ForoWindow
+            foro_window = tk.Toplevel(self.master)
+            # Pasamos is_admin=True para darle privilegios de administrador en el foro
+            ForoWindow(foro_window, self.usuario, is_admin=True)
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo abrir el foro: {e}")
+            # Alternativa si el archivo no existe o hay otro problema
+            # subprocess.Popen(["python", "foro.py", "--usuario", self.usuario, "--admin", "true"])
