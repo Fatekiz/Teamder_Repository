@@ -445,7 +445,7 @@ class ForoWindow:
             titulo = titulo_entry.get().strip()
             contenido = contenido_text.get(1.0, tk.END).strip()
             
-            if not titulo o...
+            if not titulo:
                 messagebox.showwarning("Aviso", "Completa todos los campos")
                 return
             
