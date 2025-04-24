@@ -5,7 +5,27 @@ import json
 import os
 
 class ForoWindow:
+    """
+    ForoWindow: Interfaz gráfica para un foro de discusión utilizando Tkinter.
+    
+    Esta clase implementa una ventana de foro que permite a los usuarios crear, visualizar,
+    editar y eliminar temas y respuestas. Los datos del foro se almacenan en un archivo JSON.
+    
+    Atributos:
+        master (tk.Tk): La ventana principal de Tkinter.
+        usuario (str): Nombre del usuario que ha iniciado sesión.
+        data_file (str): Ruta del archivo JSON para almacenar los mensajes.
+        botones_respuestas (list): Almacena referencias a los botones de las respuestas.
+        mensajes (list): Lista de diccionarios que contienen los mensajes del foro.
+    """
     def __init__(self, master, usuario):
+        """
+        Inicializa la ventana del foro.
+        
+        Args:
+            master (tk.Tk): La ventana principal de Tkinter.
+            usuario (str): Nombre del usuario que ha iniciado sesión.
+        """
         self.master = master
         self.master.title("Tkinder - Foro")
         self.master.geometry("1000x800")
@@ -23,6 +43,12 @@ class ForoWindow:
         self.crear_widgets()
         
     def cargar_mensajes(self):
+        """
+        Carga los mensajes desde el archivo JSON.
+        
+        Si el archivo no existe, crea mensajes de prueba predeterminados.
+        En caso de error, inicializa mensajes como una lista vacía.
+        """
         # Intentar cargar mensajes desde el archivo, o crear mensajes de prueba si no existe
         try:
             if os.path.exists(self.data_file):
@@ -46,7 +72,12 @@ class ForoWindow:
             self.mensajes = []
             
     def guardar_mensajes(self):
-        # Guardar mensajes en el archivo
+        """
+        Guarda los mensajes en el archivo JSON.
+        
+        Utiliza encoding utf-8 para preservar caracteres especiales y
+        muestra un mensaje de error si ocurre algún problema.
+        """
         try:
             with open(self.data_file, 'w', encoding='utf-8') as f:
                 json.dump(self.mensajes, f, ensure_ascii=False, indent=4)
@@ -54,6 +85,12 @@ class ForoWindow:
             messagebox.showerror("Error", f"Error al guardar los mensajes: {str(e)}")
         
     def crear_widgets(self):
+        """
+        Configura todos los widgets de la interfaz gráfica del foro.
+        
+        Crea la estructura de paneles, botones, listas y áreas de texto
+        necesarias para la visualización y gestión de los temas y respuestas.
+        """
         # Panel principal
         panel_principal = ttk.PanedWindow(self.master, orient=tk.HORIZONTAL)
         panel_principal.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
@@ -145,6 +182,11 @@ class ForoWindow:
                   command=self.enviar_respuesta).pack(pady=5, padx=5, anchor=tk.E)
     
     def actualizar_lista(self):
+        """
+        Actualiza la lista de temas en la interfaz.
+        
+        Recarga los mensajes desde el archivo y los muestra en el Treeview.
+        """
         # Limpiar lista actual
         for item in self.lista_temas.get_children():
             self.lista_temas.delete(item)
@@ -160,6 +202,15 @@ class ForoWindow:
                                           mensaje["fecha"]))
     
     def mostrar_tema(self, event):
+        """
+        Muestra el contenido de un tema seleccionado.
+        
+        Actualiza el área de texto con el contenido del tema y muestra sus respuestas.
+        También gestiona la habilitación de botones según el usuario.
+        
+        Args:
+            event: Evento de selección en el Treeview (puede ser None si se llama programáticamente)
+        """
         seleccion = self.lista_temas.selection()
         if not seleccion:
             return
@@ -241,6 +292,14 @@ class ForoWindow:
             ttk.Label(self.scrollable_frame, text="No hay respuestas todavía.").pack(pady=10)
     
     def editar_respuesta(self, id_respuesta):
+        """
+        Permite al usuario editar su propia respuesta.
+        
+        Abre una ventana para editar el contenido de una respuesta y actualiza los datos.
+        
+        Args:
+            id_respuesta (int): ID de la respuesta que se va a editar
+        """
         seleccion = self.lista_temas.selection()
         if not seleccion:
             return
@@ -282,6 +341,14 @@ class ForoWindow:
                         return
     
     def eliminar_respuesta(self, id_respuesta):
+        """
+        Elimina una respuesta creada por el usuario.
+        
+        Pide confirmación antes de eliminar y actualiza los datos y la vista.
+        
+        Args:
+            id_respuesta (int): ID de la respuesta que se va a eliminar
+        """
         seleccion = self.lista_temas.selection()
         if not seleccion:
             return
@@ -304,6 +371,15 @@ class ForoWindow:
                 return
     
     def enviar_respuesta(self):
+        """
+        Añade una respuesta al tema seleccionado.
+        
+        Verifica que se haya seleccionado un tema y que el texto de la respuesta
+        no esté vacío. Añade la respuesta al tema y actualiza la vista.
+        
+        Returns:
+            None
+        """
         seleccion = self.lista_temas.selection()
         respuesta = self.texto_respuesta.get(1.0, tk.END).strip()
         
@@ -347,6 +423,12 @@ class ForoWindow:
                 return
     
     def crear_nuevo_tema(self):
+        """
+        Abre una ventana para crear un nuevo tema.
+        
+        Permite al usuario introducir un título y contenido para un nuevo tema,
+        lo añade a la lista de mensajes y actualiza la vista.
+        """
         ventana_nuevo = tk.Toplevel(self.master)
         ventana_nuevo.title("Nuevo tema")
         ventana_nuevo.geometry("700x500")
@@ -363,7 +445,7 @@ class ForoWindow:
             titulo = titulo_entry.get().strip()
             contenido = contenido_text.get(1.0, tk.END).strip()
             
-            if not titulo or not contenido:
+            if not titulo o...
                 messagebox.showwarning("Aviso", "Completa todos los campos")
                 return
             
@@ -396,6 +478,12 @@ class ForoWindow:
         ttk.Button(ventana_nuevo, text="Publicar", command=guardar_tema).pack(pady=10)
     
     def editar_tema(self):
+        """
+        Permite al usuario editar su propio tema.
+        
+        Verifica que el usuario sea el autor del tema antes de permitir la edición.
+        Abre una ventana para editar el título y contenido del tema.
+        """
         seleccion = self.lista_temas.selection()
         if not seleccion:
             return
@@ -450,6 +538,12 @@ class ForoWindow:
         messagebox.showerror("Error", "No tienes permiso para editar este tema")
     
     def eliminar_tema(self):
+        """
+        Elimina un tema creado por el usuario.
+        
+        Verifica que el usuario sea el autor del tema antes de permitir la eliminación.
+        Pide confirmación y actualiza la vista después de eliminar el tema.
+        """
         seleccion = self.lista_temas.selection()
         if not seleccion:
             return
