@@ -6,7 +6,7 @@ class RegisterWindow:
     def __init__(self, master, login_window):
         self.master = master  # Ventana actual (de registro)
         self.login_window = login_window  # Referencia a la ventana de login (para volver)
-        self.master.title("Tkinder - Registro")  # Título de la ventana
+        self.master.title("Teamder - Registro")  # Título de la ventana
         self.master.geometry("300x250")  # Tamaño de la ventana
 
         self.user_manager = UserManager()  # Instancia del manejador de usuarios

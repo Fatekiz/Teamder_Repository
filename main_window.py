@@ -6,12 +6,12 @@ from foro_window import ForoWindow
 class MainWindow:
     def __init__(self, master, usuario):
         self.master = master
-        self.master.title("Tkinder - Buscar Equipos")
+        self.master.title("Teamder - Buscar Equipos")
         self.master.geometry("600x500")
 
         self.usuario = usuario
 
-        label_bienvenida = tk.Label(master, text=f"¡Bienvenido a Tkinder, {usuario}!", font=("Arial", 14))
+        label_bienvenida = tk.Label(master, text=f"¡Bienvenido a Teamder, {usuario}!", font=("Arial", 14))
         label_bienvenida.pack(pady=20)
 
         tk.Button(master, text="Ajustes de Perfil", command=self.abrir_perfil).pack(pady=10)

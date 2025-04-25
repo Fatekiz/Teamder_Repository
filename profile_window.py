@@ -6,7 +6,7 @@ import json
 class ProfileWindow:
     def __init__(self, master, usuario):
         self.master = master
-        self.master.title("Tkinter Profile")
+        self.master.title("Teamder Profile")
         self.master.geometry("400x300")
 
         self.usuario = usuario

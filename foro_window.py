@@ -29,7 +29,7 @@ class ForoWindow:
             is_admin (bool): Indica si el usuario tiene privilegios de administrador.
         """
         self.master = master
-        self.master.title("Tkinder - Foro")
+        self.master.title("Teamder - Foro")
         self.master.geometry("1000x800")
         self.usuario = usuario
         self.is_admin = is_admin

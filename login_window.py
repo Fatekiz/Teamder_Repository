@@ -7,7 +7,7 @@ from register_window import RegisterWindow
 class LoginWindow:
     def __init__(self, master):
         self.master = master  # Ventana principal (root)
-        self.master.title("Tkinder - Iniciar Sesión")  # Título de la ventana
+        self.master.title("Teamder - Iniciar Sesión")  # Título de la ventana
         self.master.geometry("300x200")  # Tamaño de la ventana
 
         self.user_manager = UserManager()  # Instanciar UserManager
