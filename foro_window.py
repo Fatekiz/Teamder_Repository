@@ -258,91 +258,234 @@ class ForoWindow:
     
     def administrar_juegos(self):
         """
-        Permite al administrador gestionar la lista de juegos disponibles.
+        Sistema CRUD completo para gestionar la lista de juegos disponibles.
         
-        Muestra una ventana con la lista de juegos actuales, permitiendo añadir y eliminar juegos.
+        Permite al administrador:
+        - Crear (Create): Añadir nuevos juegos a la lista
+        - Leer (Read): Ver la lista completa de juegos disponibles
+        - Actualizar (Update): Modificar nombres de juegos existentes
+        - Eliminar (Delete): Quitar juegos de la lista
         """
         if not self.is_admin:
+            messagebox.showwarning("Acceso restringido", "Solo los administradores pueden gestionar los juegos")
             return
-            
+                
         ventana_juegos = tk.Toplevel(self.master)
-        ventana_juegos.title("Administrar Juegos")
-        ventana_juegos.geometry("400x500")
+        ventana_juegos.title("Administración de Juegos - CRUD")
+        ventana_juegos.geometry("500x600")
+        ventana_juegos.resizable(True, True)
         
-        ttk.Label(ventana_juegos, text="Lista de Juegos Disponibles", font=("Arial", 12, "bold")).pack(pady=10)
+        # Frame principal con título
+        frame_titulo = ttk.Frame(ventana_juegos)
+        frame_titulo.pack(fill=tk.X, padx=10, pady=10)
         
-        # Frame para agregar juego
-        frame_agregar = ttk.Frame(ventana_juegos)
-        frame_agregar.pack(fill=tk.X, padx=10, pady=5)
+        ttk.Label(frame_titulo, text="Sistema de Administración de Juegos", 
+                  font=("Arial", 14, "bold")).pack(side=tk.LEFT)
         
-        ttk.Label(frame_agregar, text="Nuevo juego:").pack(side=tk.LEFT, padx=5)
-        nuevo_juego_entry = ttk.Entry(frame_agregar, width=20)
+        # Frame para crear nuevo juego
+        frame_crear = ttk.LabelFrame(ventana_juegos, text="Crear Nuevo Juego")
+        frame_crear.pack(fill=tk.X, padx=10, pady=10)
+        
+        frame_nuevo = ttk.Frame(frame_crear)
+        frame_nuevo.pack(fill=tk.X, padx=5, pady=10)
+        
+        ttk.Label(frame_nuevo, text="Nombre:").pack(side=tk.LEFT, padx=5)
+        nuevo_juego_entry = ttk.Entry(frame_nuevo, width=30)
         nuevo_juego_entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
         
         def agregar_juego():
             juego = nuevo_juego_entry.get().strip()
             if not juego:
-                messagebox.showwarning("Aviso", "Ingresa un nombre de juego")
+                messagebox.showwarning("Datos incompletos", "Ingresa un nombre de juego")
                 return
-                
+                    
             if juego in self.juegos:
-                messagebox.showwarning("Aviso", "Este juego ya existe en la lista")
+                messagebox.showwarning("Duplicado", f"El juego '{juego}' ya existe en la lista")
                 return
-                
+                    
             self.juegos.append(juego)
             self.juegos.sort()
             self.guardar_juegos()
             
             # Actualizar lista en la ventana de administración
-            listbox_juegos.delete(0, tk.END)
-            for juego in self.juegos:
-                listbox_juegos.insert(tk.END, juego)
-                
+            actualizar_listbox()
+                    
             # Actualizar combo en ventana principal
             self.combo_juegos["values"] = ["Todos"] + sorted(self.juegos)
-                
+                    
             nuevo_juego_entry.delete(0, tk.END)
-            messagebox.showinfo("Éxito", "Juego añadido correctamente")
+            messagebox.showinfo("Operación exitosa", f"Juego '{juego}' añadido correctamente")
         
-        ttk.Button(frame_agregar, text="Agregar", command=agregar_juego).pack(side=tk.LEFT, padx=5)
+        ttk.Button(frame_nuevo, text="Agregar", command=agregar_juego).pack(side=tk.LEFT, padx=5)
         
-        # Listbox para mostrar juegos
-        frame_lista = ttk.Frame(ventana_juegos)
+        # Frame para lista de juegos (Read)
+        frame_lista = ttk.LabelFrame(ventana_juegos, text="Lista de Juegos")
         frame_lista.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
-        scrollbar = ttk.Scrollbar(frame_lista)
+        # Crear un Frame con scroll
+        frame_scroll = ttk.Frame(frame_lista)
+        frame_scroll.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        
+        # Scrollbar
+        scrollbar = ttk.Scrollbar(frame_scroll)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         
-        listbox_juegos = tk.Listbox(frame_lista)
-        listbox_juegos.pack(fill=tk.BOTH, expand=True)
+        # Listbox para mostrar juegos
+        listbox_juegos = tk.Listbox(frame_scroll, font=("Arial", 10), selectmode=tk.SINGLE)
+        listbox_juegos.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
+        # Configurar scrollbar
         listbox_juegos.config(yscrollcommand=scrollbar.set)
         scrollbar.config(command=listbox_juegos.yview)
         
-        # Llenar lista de juegos
-        for juego in self.juegos:
-            listbox_juegos.insert(tk.END, juego)
+        def actualizar_listbox():
+            """Actualiza la lista de juegos en el listbox"""
+            listbox_juegos.delete(0, tk.END)
+            for juego in sorted(self.juegos):
+                listbox_juegos.insert(tk.END, juego)
+                
+        # Llenar lista de juegos inicialmente
+        actualizar_listbox()
         
-        def eliminar_juego():
+        # Frame para operaciones (Update y Delete)
+        frame_operaciones = ttk.LabelFrame(ventana_juegos, text="Operaciones")
+        frame_operaciones.pack(fill=tk.X, padx=10, pady=10)
+        
+        # Función para obtener el juego seleccionado
+        def obtener_seleccion():
             seleccion = listbox_juegos.curselection()
             if not seleccion:
-                messagebox.showwarning("Aviso", "Selecciona un juego para eliminar")
+                messagebox.showwarning("Selección requerida", "Selecciona un juego de la lista")
+                return None
+                
+            indice = seleccion[0]
+            juego = listbox_juegos.get(indice)
+            return juego, indice
+        
+        # Función para actualizar juego (Update)
+        def actualizar_juego():
+            resultado = obtener_seleccion()
+            if not resultado:
                 return
                 
-            juego = listbox_juegos.get(seleccion[0])
+            juego, indice = resultado
             
-            if messagebox.askyesno("Confirmar", f"¿Estás seguro de eliminar '{juego}'?\n\nNota: Los temas existentes con este juego se mantendrán, pero no se podrán crear nuevos."):
-                self.juegos.remove(juego)
-                self.guardar_juegos()
-                listbox_juegos.delete(seleccion[0])
+            # Ventana para editar juego
+            ventana_editar = tk.Toplevel(ventana_juegos)
+            ventana_editar.title(f"Editar: {juego}")
+            ventana_editar.geometry("400x150")
+            ventana_editar.resizable(False, False)
+            
+            ventana_editar.grab_set()  # Modal
+            
+            ttk.Label(ventana_editar, text="Nuevo nombre:").pack(anchor=tk.W, padx=10, pady=10)
+            
+            editar_entry = ttk.Entry(ventana_editar, width=40)
+            editar_entry.pack(fill=tk.X, padx=10, pady=5)
+            editar_entry.insert(0, juego)
+            editar_entry.select_range(0, tk.END)
+            editar_entry.focus()
+            
+            def guardar_cambios():
+                nuevo_nombre = editar_entry.get().strip()
                 
-                # Actualizar combo en ventana principal
+                if not nuevo_nombre:
+                    messagebox.showwarning("Error", "El nombre no puede estar vacío")
+                    return
+                    
+                if nuevo_nombre == juego:
+                    ventana_editar.destroy()
+                    return
+                    
+                if nuevo_nombre in self.juegos:
+                    messagebox.showwarning("Error", f"Ya existe un juego llamado '{nuevo_nombre}'")
+                    return
+                
+                # Actualizar en la lista
+                indice_real = self.juegos.index(juego)
+                self.juegos[indice_real] = nuevo_nombre
+                self.juegos.sort()
+                self.guardar_juegos()
+                
+                # Actualizar referencias en mensajes existentes
+                for mensaje in self.mensajes:
+                    if mensaje.get("juego") == juego:
+                        mensaje["juego"] = nuevo_nombre
+                
+                self.guardar_mensajes()
+                
+                # Actualizar interfaz
+                actualizar_listbox()
                 self.combo_juegos["values"] = ["Todos"] + sorted(self.juegos)
                 
-                messagebox.showinfo("Éxito", "Juego eliminado correctamente")
+                ventana_editar.destroy()
+                messagebox.showinfo("Operación exitosa", f"Juego actualizado: '{juego}' → '{nuevo_nombre}'")
+            
+            frame_botones = ttk.Frame(ventana_editar)
+            frame_botones.pack(pady=10, fill=tk.X)
+            
+            ttk.Button(frame_botones, text="Guardar", command=guardar_cambios).pack(side=tk.RIGHT, padx=10)
+            ttk.Button(frame_botones, text="Cancelar", 
+                       command=ventana_editar.destroy).pack(side=tk.RIGHT, padx=10)
         
-        ttk.Button(ventana_juegos, text="Eliminar juego seleccionado", 
-                   command=eliminar_juego).pack(pady=10)
+        # Función para eliminar juego (Delete)
+        def eliminar_juego():
+            resultado = obtener_seleccion()
+            if not resultado:
+                return
+                
+            juego, indice = resultado
+            
+            # Contar cuántos temas usan este juego
+            temas_con_juego = sum(1 for mensaje in self.mensajes if mensaje.get("juego") == juego)
+            
+            mensaje = f"¿Estás seguro de eliminar el juego '{juego}'?"
+            if temas_con_juego > 0:
+                mensaje += f"\n\nHay {temas_con_juego} tema(s) asociado(s) a este juego."
+                mensaje += "\nLos temas existentes mantendrán esta referencia, pero no se podrán crear nuevos."
+            
+            if not messagebox.askyesno("Confirmar eliminación", mensaje):
+                return
+            
+            # Eliminar de la lista
+            self.juegos.remove(juego)
+            self.guardar_juegos()
+            
+            # Actualizar interfaz
+            actualizar_listbox()
+            self.combo_juegos["values"] = ["Todos"] + sorted(self.juegos)
+            
+            messagebox.showinfo("Operación exitosa", f"Juego '{juego}' eliminado correctamente")
+        
+        # Botones para operaciones CRUD
+        frame_botones_crud = ttk.Frame(frame_operaciones)
+        frame_botones_crud.pack(fill=tk.X, padx=5, pady=10)
+        
+        ttk.Button(frame_botones_crud, text="Editar juego seleccionado", 
+                   command=actualizar_juego).pack(side=tk.LEFT, padx=5)
+        
+        ttk.Button(frame_botones_crud, text="Eliminar juego seleccionado", 
+                   command=eliminar_juego).pack(side=tk.LEFT, padx=5)
+        
+        # Estadísticas y botón de cerrar
+        frame_estadisticas = ttk.Frame(ventana_juegos)
+        frame_estadisticas.pack(fill=tk.X, padx=10, pady=5)
+        
+        ttk.Label(frame_estadisticas, 
+                  text=f"Total de juegos: {len(self.juegos)}").pack(side=tk.LEFT)
+        
+        ttk.Button(ventana_juegos, text="Cerrar", 
+                   command=ventana_juegos.destroy).pack(pady=10)
+        
+        # Actualizar contador de estadísticas cuando cambia la lista
+        def actualizar_estadisticas():
+            for widget in frame_estadisticas.winfo_children():
+                widget.destroy()
+            ttk.Label(frame_estadisticas, 
+                      text=f"Total de juegos: {len(self.juegos)}").pack(side=tk.LEFT)
+        
+        # Añadir un observador para actualizar estadísticas cuando se modifica la lista
+        ventana_juegos.bind("<FocusIn>", lambda e: actualizar_estadisticas())
     
     def filtrar_por_juego(self, event=None):
         """
