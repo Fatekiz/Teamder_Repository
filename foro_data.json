@@ -5,7 +5,8 @@
         "fecha": "2025-04-10",
         "titulo": "Bienvenida",
         "contenido": "¡Bienvenidos al foro de Tkinder!",
-        "respuestas": []
+        "respuestas": [],
+        "juego": "General"
     },
     {
         "id": 2,
@@ -26,21 +27,7 @@
                 "fecha": "2025-04-11",
                 "contenido": "¿De qué nivel es el torneo?"
             }
-        ]
-    },
-    {
-        "id": 3,
-        "usuario": "a",
-        "fecha": "2025-04-11",
-        "titulo": "a",
-        "contenido": "a",
-        "respuestas": [
-            {
-                "id": 1,
-                "usuario": "a",
-                "fecha": "2025-04-11",
-                "contenido": "a"
-            }
-        ]
+        ],
+        "juego": "General"
     }
 ]
