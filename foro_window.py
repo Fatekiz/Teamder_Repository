@@ -18,6 +18,8 @@ class ForoWindow:
         botones_respuestas (list): Almacena referencias a los botones de las respuestas.
         mensajes (list): Lista de diccionarios que contienen los mensajes del foro.
         is_admin (bool): Indica si el usuario actual tiene privilegios de administrador.
+        juegos (list): Lista de juegos disponibles como temas.
+        juego_actual (str): Juego seleccionado para filtrar.
     """
     def __init__(self, master, usuario, is_admin=False):
         """
@@ -34,16 +36,60 @@ class ForoWindow:
         self.usuario = usuario
         self.is_admin = is_admin
         
-        # Archivo para guardar los mensajes
+        # Archivo para guardar los mensajes y juegos
         self.data_file = "foro_data.json"
+        self.juegos_file = "juegos_data.json"
         
         # Para mantener referencia a los botones de las respuestas
         self.botones_respuestas = []
+        
+        # Juego seleccionado actualmente para filtrar (None = mostrar todos)
+        self.juego_actual = None
+        
+        # Cargar juegos o crear datos iniciales
+        self.cargar_juegos()
         
         # Cargar mensajes o crear datos iniciales
         self.cargar_mensajes()
         
         self.crear_widgets()
+        
+    def cargar_juegos(self):
+        """
+        Carga la lista de juegos desde el archivo JSON o crea una lista predeterminada.
+        """
+        try:
+            if os.path.exists(self.juegos_file):
+                with open(self.juegos_file, 'r', encoding='utf-8') as f:
+                    self.juegos = json.load(f)
+            else:
+                # Lista de juegos predeterminados
+                self.juegos = [
+                    "League of Legends",
+                    "Valorant",
+                    "Counter-Strike",
+                    "Fortnite",
+                    "Minecraft",
+                    "Dota 2",
+                    "Apex Legends",
+                    "Overwatch",
+                    "Rocket League",
+                    "Call of Duty"
+                ]
+                self.guardar_juegos()
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al cargar los juegos: {str(e)}")
+            self.juegos = []
+    
+    def guardar_juegos(self):
+        """
+        Guarda la lista de juegos en el archivo JSON.
+        """
+        try:
+            with open(self.juegos_file, 'w', encoding='utf-8') as f:
+                json.dump(self.juegos, f, ensure_ascii=False, indent=4)
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al guardar los juegos: {str(e)}")
         
     def cargar_mensajes(self):
         """
@@ -57,13 +103,18 @@ class ForoWindow:
             if os.path.exists(self.data_file):
                 with open(self.data_file, 'r', encoding='utf-8') as f:
                     self.mensajes = json.load(f)
+                    
+                    # Asegurar compatibilidad con datos antiguos
+                    for mensaje in self.mensajes:
+                        if "juego" not in mensaje:
+                            mensaje["juego"] = "General"
             else:
                 # Mensajes de prueba para mostrar en el foro
                 self.mensajes = [
                     {"id": 1, "usuario": "Admin", "fecha": "2025-04-10", "titulo": "Bienvenida", 
-                     "contenido": "¡Bienvenidos al foro de Tkinder!", "respuestas": []},
+                     "contenido": "¡Bienvenidos al foro de Tkinder!", "respuestas": [], "juego": "General"},
                     {"id": 2, "usuario": "JugadorPro", "fecha": "2025-04-10", "titulo": "Busco equipo", 
-                     "contenido": "Busco equipo para torneo de fin de semana", 
+                     "contenido": "Busco equipo para torneo de fin de semana", "juego": "League of Legends",
                      "respuestas": [
                          {"id": 1, "usuario": "GameMaster", "fecha": "2025-04-10", "contenido": "Yo tengo un grupo, contáctame"},
                          {"id": 2, "usuario": "Novatillo", "fecha": "2025-04-11", "contenido": "¿De qué nivel es el torneo?"}
@@ -102,7 +153,26 @@ class ForoWindow:
         frame_temas = ttk.LabelFrame(panel_principal, text="Temas")
         panel_principal.add(frame_temas, weight=1)
         
-        # Frame para botones
+        # Frame para filtros y botones
+        frame_filtros = ttk.Frame(frame_temas)
+        frame_filtros.pack(pady=5, padx=10, fill=tk.X)
+        
+        # Label para el selector de juegos
+        ttk.Label(frame_filtros, text="Filtrar por juego:").pack(side=tk.LEFT, padx=5)
+        
+        # Combo para seleccionar juego
+        self.combo_juegos = ttk.Combobox(frame_filtros, state="readonly")
+        self.combo_juegos["values"] = ["Todos"] + sorted(self.juegos)
+        self.combo_juegos.current(0)  # Seleccionar "Todos" por defecto
+        self.combo_juegos.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+        self.combo_juegos.bind("<<ComboboxSelected>>", self.filtrar_por_juego)
+        
+        # Botón para administrar juegos (solo para admins)
+        if self.is_admin:
+            btn_admin_juegos = ttk.Button(frame_filtros, text="Administrar Juegos", command=self.administrar_juegos)
+            btn_admin_juegos.pack(side=tk.LEFT, padx=5)
+        
+        # Frame para botones de temas
         frame_botones = ttk.Frame(frame_temas)
         frame_botones.pack(pady=5, padx=10, fill=tk.X)
         
@@ -115,13 +185,15 @@ class ForoWindow:
         btn_actualizar.pack(side=tk.LEFT, padx=5)
         
         # Lista de temas
-        self.lista_temas = ttk.Treeview(frame_temas, columns=("titulo", "autor", "fecha"), show="headings")
+        self.lista_temas = ttk.Treeview(frame_temas, columns=("titulo", "autor", "fecha", "juego"), show="headings")
         self.lista_temas.heading("titulo", text="Título")
         self.lista_temas.heading("autor", text="Autor")
         self.lista_temas.heading("fecha", text="Fecha")
+        self.lista_temas.heading("juego", text="Juego")
         self.lista_temas.column("titulo", width=150)
-        self.lista_temas.column("autor", width=100)
-        self.lista_temas.column("fecha", width=100)
+        self.lista_temas.column("autor", width=80)
+        self.lista_temas.column("fecha", width=80)
+        self.lista_temas.column("juego", width=100)
         self.lista_temas.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
         
         # Cargar temas en la lista
@@ -184,25 +256,127 @@ class ForoWindow:
         ttk.Button(frame_nueva_respuesta, text="Enviar respuesta", 
                   command=self.enviar_respuesta).pack(pady=5, padx=5, anchor=tk.E)
     
+    def administrar_juegos(self):
+        """
+        Permite al administrador gestionar la lista de juegos disponibles.
+        
+        Muestra una ventana con la lista de juegos actuales, permitiendo añadir y eliminar juegos.
+        """
+        if not self.is_admin:
+            return
+            
+        ventana_juegos = tk.Toplevel(self.master)
+        ventana_juegos.title("Administrar Juegos")
+        ventana_juegos.geometry("400x500")
+        
+        ttk.Label(ventana_juegos, text="Lista de Juegos Disponibles", font=("Arial", 12, "bold")).pack(pady=10)
+        
+        # Frame para agregar juego
+        frame_agregar = ttk.Frame(ventana_juegos)
+        frame_agregar.pack(fill=tk.X, padx=10, pady=5)
+        
+        ttk.Label(frame_agregar, text="Nuevo juego:").pack(side=tk.LEFT, padx=5)
+        nuevo_juego_entry = ttk.Entry(frame_agregar, width=20)
+        nuevo_juego_entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+        
+        def agregar_juego():
+            juego = nuevo_juego_entry.get().strip()
+            if not juego:
+                messagebox.showwarning("Aviso", "Ingresa un nombre de juego")
+                return
+                
+            if juego in self.juegos:
+                messagebox.showwarning("Aviso", "Este juego ya existe en la lista")
+                return
+                
+            self.juegos.append(juego)
+            self.juegos.sort()
+            self.guardar_juegos()
+            
+            # Actualizar lista en la ventana de administración
+            listbox_juegos.delete(0, tk.END)
+            for juego in self.juegos:
+                listbox_juegos.insert(tk.END, juego)
+                
+            # Actualizar combo en ventana principal
+            self.combo_juegos["values"] = ["Todos"] + sorted(self.juegos)
+                
+            nuevo_juego_entry.delete(0, tk.END)
+            messagebox.showinfo("Éxito", "Juego añadido correctamente")
+        
+        ttk.Button(frame_agregar, text="Agregar", command=agregar_juego).pack(side=tk.LEFT, padx=5)
+        
+        # Listbox para mostrar juegos
+        frame_lista = ttk.Frame(ventana_juegos)
+        frame_lista.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        scrollbar = ttk.Scrollbar(frame_lista)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        listbox_juegos = tk.Listbox(frame_lista)
+        listbox_juegos.pack(fill=tk.BOTH, expand=True)
+        
+        listbox_juegos.config(yscrollcommand=scrollbar.set)
+        scrollbar.config(command=listbox_juegos.yview)
+        
+        # Llenar lista de juegos
+        for juego in self.juegos:
+            listbox_juegos.insert(tk.END, juego)
+        
+        def eliminar_juego():
+            seleccion = listbox_juegos.curselection()
+            if not seleccion:
+                messagebox.showwarning("Aviso", "Selecciona un juego para eliminar")
+                return
+                
+            juego = listbox_juegos.get(seleccion[0])
+            
+            if messagebox.askyesno("Confirmar", f"¿Estás seguro de eliminar '{juego}'?\n\nNota: Los temas existentes con este juego se mantendrán, pero no se podrán crear nuevos."):
+                self.juegos.remove(juego)
+                self.guardar_juegos()
+                listbox_juegos.delete(seleccion[0])
+                
+                # Actualizar combo en ventana principal
+                self.combo_juegos["values"] = ["Todos"] + sorted(self.juegos)
+                
+                messagebox.showinfo("Éxito", "Juego eliminado correctamente")
+        
+        ttk.Button(ventana_juegos, text="Eliminar juego seleccionado", 
+                   command=eliminar_juego).pack(pady=10)
+    
+    def filtrar_por_juego(self, event=None):
+        """
+        Filtra la lista de temas según el juego seleccionado en el combo.
+        
+        Args:
+            event: Evento de selección en el Combobox (puede ser None si se llama programáticamente)
+        """
+        seleccion = self.combo_juegos.get()
+        
+        # Limpiar lista actual
+        for item in self.lista_temas.get_children():
+            self.lista_temas.delete(item)
+            
+        # Filtrar mensajes por juego seleccionado
+        for mensaje in self.mensajes:
+            if seleccion == "Todos" or mensaje.get("juego") == seleccion:
+                self.lista_temas.insert("", tk.END, iid=str(mensaje["id"]), 
+                                       values=(mensaje.get("titulo", "Sin título"), 
+                                              mensaje["usuario"], 
+                                              mensaje["fecha"],
+                                              mensaje.get("juego", "General")))
+    
     def actualizar_lista(self):
         """
         Actualiza la lista de temas en la interfaz.
         
         Recarga los mensajes desde el archivo y los muestra en el Treeview.
         """
-        # Limpiar lista actual
-        for item in self.lista_temas.get_children():
-            self.lista_temas.delete(item)
-            
         # Cargar mensajes desde el archivo
         self.cargar_mensajes()
         
-        # Insertar temas en la lista
-        for mensaje in self.mensajes:
-            self.lista_temas.insert("", tk.END, iid=str(mensaje["id"]), 
-                                   values=(mensaje.get("titulo", "Sin título"), 
-                                          mensaje["usuario"], 
-                                          mensaje["fecha"]))
+        # Actualizar la lista según el filtro actual
+        self.filtrar_por_juego()
     
     def mostrar_tema(self, event):
         """
@@ -243,13 +417,17 @@ class ForoWindow:
         self.texto_tema.delete(1.0, tk.END)
         
         titulo = mensaje.get("titulo", "Sin título")
+        juego = mensaje.get("juego", "General")
+        
         self.texto_tema.insert(tk.END, f"Tema: {titulo}\n", "titulo")
+        self.texto_tema.insert(tk.END, f"Juego: {juego}\n", "juego")
         self.texto_tema.insert(tk.END, f"De: {mensaje['usuario']}\n")
         self.texto_tema.insert(tk.END, f"Fecha: {mensaje['fecha']}\n\n")
         self.texto_tema.insert(tk.END, f"{mensaje['contenido']}\n")
         
         # Configurar estilos de texto
         self.texto_tema.tag_configure("titulo", font=("Arial", 12, "bold"))
+        self.texto_tema.tag_configure("juego", font=("Arial", 10, "italic"))
         self.texto_tema.config(state=tk.DISABLED)
         
         # Limpiar respuestas anteriores
@@ -443,8 +621,8 @@ class ForoWindow:
         """
         Abre una ventana para crear un nuevo tema.
         
-        Permite al usuario introducir un título y contenido para un nuevo tema,
-        lo añade a la lista de mensajes y actualiza la vista.
+        Permite al usuario introducir un título, seleccionar un juego y añadir contenido
+        para un nuevo tema, lo añade a la lista de mensajes y actualiza la vista.
         """
         ventana_nuevo = tk.Toplevel(self.master)
         ventana_nuevo.title("Nuevo tema")
@@ -454,16 +632,69 @@ class ForoWindow:
         titulo_entry = ttk.Entry(ventana_nuevo, width=50)
         titulo_entry.pack(fill=tk.X, padx=10, pady=5)
         
+        # Selector de juego
+        frame_juego = ttk.Frame(ventana_nuevo)
+        frame_juego.pack(fill=tk.X, padx=10, pady=5)
+        
+        ttk.Label(frame_juego, text="Juego:").pack(side=tk.LEFT)
+        
+        combo_juego_nuevo = ttk.Combobox(frame_juego, state="readonly", width=30)
+        combo_juego_nuevo["values"] = ["General"] + sorted(self.juegos)
+        combo_juego_nuevo.current(0)  # Seleccionar "General" por defecto
+        combo_juego_nuevo.pack(side=tk.LEFT, padx=5)
+        
+        # Opción para agregar un nuevo juego
+        def abrir_agregar_juego():
+            ventana_agregar = tk.Toplevel(ventana_nuevo)
+            ventana_agregar.title("Agregar nuevo juego")
+            ventana_agregar.geometry("400x150")
+            
+            ttk.Label(ventana_agregar, text="Nombre del nuevo juego:").pack(anchor=tk.W, padx=10, pady=10)
+            
+            nuevo_juego_entry = ttk.Entry(ventana_agregar, width=40)
+            nuevo_juego_entry.pack(fill=tk.X, padx=10, pady=5)
+            
+            def agregar_juego_y_seleccionar():
+                juego = nuevo_juego_entry.get().strip()
+                
+                if not juego:
+                    messagebox.showwarning("Aviso", "Ingresa un nombre de juego")
+                    return
+                    
+                if juego in self.juegos:
+                    messagebox.showwarning("Aviso", "Este juego ya existe en la lista")
+                    return
+                
+                self.juegos.append(juego)
+                self.juegos.sort()
+                self.guardar_juegos()
+                
+                # Actualizar combos
+                combo_juego_nuevo["values"] = ["General"] + sorted(self.juegos)
+                combo_juego_nuevo.set(juego)
+                
+                self.combo_juegos["values"] = ["Todos"] + sorted(self.juegos)
+                
+                ventana_agregar.destroy()
+                messagebox.showinfo("Éxito", f"Juego '{juego}' añadido correctamente")
+            
+            ttk.Button(ventana_agregar, text="Agregar", 
+                       command=agregar_juego_y_seleccionar).pack(pady=10)
+        
+        ttk.Button(frame_juego, text="Nuevo juego", 
+                   command=abrir_agregar_juego).pack(side=tk.LEFT, padx=5)
+        
         ttk.Label(ventana_nuevo, text="Contenido:").pack(anchor=tk.W, padx=10, pady=5)
         contenido_text = scrolledtext.ScrolledText(ventana_nuevo, wrap=tk.WORD, height=10)
         contenido_text.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
         
         def guardar_tema():
             titulo = titulo_entry.get().strip()
+            juego = combo_juego_nuevo.get()
             contenido = contenido_text.get(1.0, tk.END).strip()
             
-            if not titulo:
-                messagebox.showwarning("Aviso", "Completa todos los campos")
+            if not titulo or not contenido:
+                messagebox.showwarning("Aviso", "Completa el título y el contenido")
                 return
             
             # Generar ID único para el tema
@@ -477,6 +708,7 @@ class ForoWindow:
                 "fecha": datetime.datetime.now().strftime("%Y-%m-%d"),
                 "titulo": titulo,
                 "contenido": contenido,
+                "juego": juego,
                 "respuestas": []
             }
             
@@ -485,9 +717,14 @@ class ForoWindow:
             # Guardar en archivo
             self.guardar_mensajes()
             
-            # Actualizar la lista
-            self.lista_temas.insert("", tk.END, iid=str(nuevo_id), 
-                                    values=(titulo, nuevo_tema["usuario"], nuevo_tema["fecha"]))
+            # Actualizar la lista según filtro actual
+            self.actualizar_lista()
+            
+            # Si estamos filtrando por un juego específico y creamos un tema de otro juego, cambiar al filtro "Todos"
+            filtro_actual = self.combo_juegos.get()
+            if filtro_actual != "Todos" and filtro_actual != juego:
+                self.combo_juegos.current(0)  # Seleccionar "Todos"
+                self.filtrar_por_juego()
             
             ventana_nuevo.destroy()
             messagebox.showinfo("Éxito", "Tu tema ha sido publicado")
@@ -499,7 +736,7 @@ class ForoWindow:
         Permite al usuario editar su propio tema o al administrador editar cualquier tema.
         
         Verifica que el usuario sea el autor del tema o administrador antes de permitir la edición.
-        Abre una ventana para editar el título y contenido del tema.
+        Abre una ventana para editar el título, juego y contenido del tema.
         """
         seleccion = self.lista_temas.selection()
         if not seleccion:
@@ -520,6 +757,24 @@ class ForoWindow:
                 titulo_entry.pack(fill=tk.X, padx=10, pady=5)
                 titulo_entry.insert(0, mensaje.get("titulo", ""))
                 
+                # Selector de juego
+                frame_juego = ttk.Frame(ventana_editar)
+                frame_juego.pack(fill=tk.X, padx=10, pady=5)
+                
+                ttk.Label(frame_juego, text="Juego:").pack(side=tk.LEFT)
+                
+                combo_juego = ttk.Combobox(frame_juego, state="readonly", width=30)
+                combo_juego["values"] = ["General"] + sorted(self.juegos)
+                
+                # Seleccionar el juego actual del tema
+                juego_actual = mensaje.get("juego", "General")
+                try:
+                    combo_juego.set(juego_actual)
+                except:
+                    combo_juego.current(0)  # Si el juego ya no existe, seleccionar "General"
+                
+                combo_juego.pack(side=tk.LEFT, padx=5)
+                
                 ttk.Label(ventana_editar, text="Contenido:").pack(anchor=tk.W, padx=10, pady=5)
                 contenido_text = scrolledtext.ScrolledText(ventana_editar, wrap=tk.WORD, height=10)
                 contenido_text.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
@@ -527,6 +782,7 @@ class ForoWindow:
                 
                 def guardar_cambios():
                     titulo = titulo_entry.get().strip()
+                    juego = combo_juego.get()
                     contenido = contenido_text.get(1.0, tk.END).strip()
                     
                     if not titulo or not contenido:
@@ -535,6 +791,7 @@ class ForoWindow:
                         
                     mensaje["titulo"] = titulo
                     mensaje["contenido"] = contenido
+                    mensaje["juego"] = juego
                     
                     # Agregar nota si un administrador ha editado el mensaje
                     if self.is_admin and mensaje["usuario"] != self.usuario:
