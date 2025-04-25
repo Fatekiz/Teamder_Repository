@@ -37,6 +37,7 @@ class LoginWindow:
             # Si son correctas, muestra mensaje de bienvenida
             messagebox.showinfo("Bienvenido", f"Hola, {usuario}")
             self.master.destroy()  # Cierra la ventana de login
+            
 
             es_admin = self.user_manager.es_admin(usuario)  # Verifica si el usuario es admin
             self.abrir_ventana_principal(usuario, es_admin)  # Abre la ventana correspondiente
