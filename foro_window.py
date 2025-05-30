@@ -3,7 +3,8 @@ from tkinter import ttk, scrolledtext, messagebox
 import datetime
 import json
 import os
-
+from chat_crud import abrir_crud_chats
+from chat_window import ChatWindow
 class ForoWindow:
     """
     ForoWindow: Interfaz gráfica para un foro de discusión utilizando Tkinter.
@@ -137,7 +138,8 @@ class ForoWindow:
                 json.dump(self.mensajes, f, ensure_ascii=False, indent=4)
         except Exception as e:
             messagebox.showerror("Error", f"Error al guardar los mensajes: {str(e)}")
-        
+    def abrir_chats_activos(self):
+        abrir_crud_chats(self.master, self.usuario)    
     def crear_widgets(self):
         """
         Configura todos los widgets de la interfaz gráfica del foro.
@@ -183,7 +185,12 @@ class ForoWindow:
         # Botón para actualizar la lista
         btn_actualizar = ttk.Button(frame_botones, text="Actualizar", command=self.actualizar_lista)
         btn_actualizar.pack(side=tk.LEFT, padx=5)
-        
+
+        btn_mensaje_privado = ttk.Button(frame_botones, text="Crear mensaje privado", command=self.crear_mensaje_privado)
+        btn_mensaje_privado.pack(side=tk.LEFT, padx=5)
+        # Botón para ver chats activos
+        btn_chats = ttk.Button(frame_botones, text="Chats activos", command=self.abrir_chats_activos)
+        btn_chats.pack(side=tk.LEFT, padx=5)
         # Lista de temas
         self.lista_temas = ttk.Treeview(frame_temas, columns=("titulo", "autor", "fecha", "juego"), show="headings")
         self.lista_temas.heading("titulo", text="Título")
@@ -958,7 +965,29 @@ class ForoWindow:
                 
         # Si llegamos aquí, no se encontró el tema o el usuario no es el autor ni administrador
         messagebox.showerror("Error", "No tienes permiso para editar este tema")
-    
+    def crear_mensaje_privado(self):
+        ventana_chat = tk.Toplevel(self.master)
+        ventana_chat.title("Nuevo mensaje privado")
+        ventana_chat.geometry("400x250")
+
+        tk.Label(ventana_chat, text="Destinatario:").pack(pady=5)
+        entry_destinatario = tk.Entry(ventana_chat)
+        entry_destinatario.pack(pady=5, fill=tk.X, padx=10)
+
+        tk.Label(ventana_chat, text="Mensaje inicial:").pack(pady=5)
+        entry_mensaje = tk.Text(ventana_chat, height=5)
+        entry_mensaje.pack(pady=5, fill=tk.BOTH, padx=10)
+
+        def enviar():
+            destinatario = entry_destinatario.get().strip()
+            mensaje = entry_mensaje.get("1.0", tk.END).strip()
+            if not destinatario or not mensaje:
+                messagebox.showwarning("Faltan datos", "Debes ingresar el destinatario y el mensaje")
+                return
+            ventana_chat.destroy()
+            ChatWindow(self.usuario, destinatario, mensaje_inicial=mensaje)
+
+        tk.Button(ventana_chat, text="Enviar", command=enviar).pack(pady=10)
     def eliminar_tema(self):
         """
         Elimina un tema creado por el usuario o cualquier tema si es administrador.
