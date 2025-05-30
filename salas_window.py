@@ -392,7 +392,7 @@ class SalasWindow:
         """
         ventana_nueva = tk.Toplevel(self.master)
         ventana_nueva.title("Crear nueva sala")
-        ventana_nueva.geometry("600x500")
+        ventana_nueva.geometry("800x600")
         ventana_nueva.grab_set()  # Modal
         
         # Frame principal con scrollbar
@@ -882,6 +882,7 @@ class SalasWindow:
     def abrir_chat(self):
         """
         Abre una ventana de chat para la sala seleccionada si el usuario es miembro.
+        El chat persistirá entre sesiones usando un archivo JSON para almacenar los mensajes.
         """
         seleccion = self.lista_salas.selection()
         if not seleccion:
@@ -904,7 +905,13 @@ class SalasWindow:
             messagebox.showinfo("No eres miembro", "Solo los miembros pueden acceder al chat de la sala")
             return
         
-        # Implementación básica del chat (podría expandirse en una futura versión)
+        # Archivo para guardar los mensajes del chat
+        chat_file = f"chat_sala_{sala_id}.json"
+        
+        # Cargar mensajes existentes o crear estructura inicial
+        mensajes = self.cargar_mensajes_chat(chat_file)
+        
+        # Crear ventana de chat
         ventana_chat = tk.Toplevel(self.master)
         ventana_chat.title(f"Chat - {sala['nombre']}")
         ventana_chat.geometry("600x500")
@@ -920,12 +927,8 @@ class SalasWindow:
         text_mensajes.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         text_mensajes.config(state=tk.NORMAL)
         
-        # Mensajes de ejemplo
-        text_mensajes.insert(tk.END, "Sistema: ¡Bienvenido al chat!\n")
-        text_mensajes.insert(tk.END, "Sistema: Actualmente los mensajes no se guardan permanentemente.\n")
-        text_mensajes.insert(tk.END, f"Sistema: Hay {len(sala['miembros'])} miembros en esta sala.\n\n")
-        
-        text_mensajes.config(state=tk.DISABLED)
+        # Mostrar mensajes existentes
+        self.mostrar_mensajes_chat(text_mensajes, mensajes)
         
         # Entrada de nuevo mensaje
         frame_nuevo = ttk.Frame(ventana_chat)
@@ -940,8 +943,22 @@ class SalasWindow:
         def enviar_mensaje():
             mensaje = entry_mensaje.get().strip()
             if mensaje:
+                # Crear nuevo mensaje con timestamp
+                nuevo_mensaje = {
+                    "usuario": self.usuario,
+                    "contenido": mensaje,
+                    "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
+                
+                # Añadir mensaje a la lista
+                mensajes.append(nuevo_mensaje)
+                
+                # Guardar mensajes en archivo
+                self.guardar_mensajes_chat(chat_file, mensajes)
+                
+                # Mostrar mensaje en la interfaz
                 text_mensajes.config(state=tk.NORMAL)
-                text_mensajes.insert(tk.END, f"{self.usuario}: {mensaje}\n")
+                text_mensajes.insert(tk.END, f"[{nuevo_mensaje['timestamp']}] {self.usuario}: {mensaje}\n")
                 text_mensajes.see(tk.END)
                 text_mensajes.config(state=tk.DISABLED)
                 entry_mensaje.delete(0, tk.END)
@@ -950,6 +967,34 @@ class SalasWindow:
         entry_mensaje.bind("<Return>", lambda e: enviar_mensaje())
         
         ttk.Button(frame_nuevo, text="Enviar", command=enviar_mensaje).pack(side=tk.LEFT, padx=5)
+        
+        # Config para actualizar el chat automáticamente
+        def actualizar_chat():
+            # Cargar mensajes más recientes
+            mensajes_actuales = self.cargar_mensajes_chat(chat_file)
+            
+            # Verificar si hay nuevos mensajes comparando la longitud
+            if len(mensajes_actuales) > len(mensajes):
+                # Identificar solo los nuevos mensajes
+                nuevos_mensajes = mensajes_actuales[len(mensajes):]
+                
+                # Actualizar nuestra lista local de mensajes
+                mensajes.extend(nuevos_mensajes)
+                
+                # Mostrar solo los nuevos mensajes
+                text_mensajes.config(state=tk.NORMAL)
+                for msg in nuevos_mensajes:
+                    if msg["usuario"] != self.usuario:  # No mostrar nuestros propios mensajes (ya se muestran al enviarlos)
+                        text_mensajes.insert(tk.END, f"[{msg['timestamp']}] {msg['usuario']}: {msg['contenido']}\n")
+                text_mensajes.see(tk.END)
+                text_mensajes.config(state=tk.DISABLED)
+            
+            # Programar la siguiente actualización en 2 segundos
+            if ventana_chat.winfo_exists():  # Verificar que la ventana aún existe
+                ventana_chat.after(2000, actualizar_chat)
+        
+        # Iniciar actualización automática
+        ventana_chat.after(2000, actualizar_chat)
         
         # Lista de miembros en línea
         frame_online = ttk.LabelFrame(ventana_chat, text="Miembros en línea")
@@ -962,7 +1007,7 @@ class SalasWindow:
         lista_online.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
         scrollbar_online.pack(side=tk.RIGHT, fill=tk.Y, pady=5)
         
-        # Añadir todos los miembros como "en línea" para esta simulación
+        # Añadir todos los miembros como "en línea"
         for miembro in sala["miembros"]:
             estado = " (tú)" if miembro == self.usuario else ""
             lista_online.insert(tk.END, f"{miembro}{estado} - En línea")
@@ -970,3 +1015,65 @@ class SalasWindow:
         # Botón para cerrar
         ttk.Button(ventana_chat, text="Cerrar chat", 
                   command=ventana_chat.destroy).pack(pady=10)
+
+    def cargar_mensajes_chat(self, archivo):
+        """
+        Carga los mensajes de chat desde un archivo JSON.
+        
+        Args:
+            archivo (str): Ruta del archivo JSON.
+            
+        Returns:
+            list: Lista de mensajes.
+        """
+        try:
+            if os.path.exists(archivo):
+                with open(archivo, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            else:
+                # Si no existe el archivo, crear estructura inicial con mensaje de sistema
+                mensajes_iniciales = [
+                    {
+                        "usuario": "Sistema",
+                        "contenido": "¡Bienvenido al chat de sala!",
+                        "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                ]
+                # Guardar estructura inicial
+                with open(archivo, 'w', encoding='utf-8') as f:
+                    json.dump(mensajes_iniciales, f, ensure_ascii=False, indent=4)
+                return mensajes_iniciales
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al cargar mensajes del chat: {str(e)}")
+            return []
+
+    def guardar_mensajes_chat(self, archivo, mensajes):
+        """
+        Guarda los mensajes de chat en un archivo JSON.
+        
+        Args:
+            archivo (str): Ruta del archivo JSON.
+            mensajes (list): Lista de mensajes a guardar.
+        """
+        try:
+            with open(archivo, 'w', encoding='utf-8') as f:
+                json.dump(mensajes, f, ensure_ascii=False, indent=4)
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al guardar mensajes del chat: {str(e)}")
+
+    def mostrar_mensajes_chat(self, text_widget, mensajes):
+        """
+        Muestra los mensajes de chat en el widget de texto.
+        
+        Args:
+            text_widget (tk.Text): Widget donde mostrar los mensajes.
+            mensajes (list): Lista de mensajes a mostrar.
+        """
+        text_widget.config(state=tk.NORMAL)
+        text_widget.delete(1.0, tk.END)
+        
+        for msg in mensajes:
+            text_widget.insert(tk.END, f"[{msg['timestamp']}] {msg['usuario']}: {msg['contenido']}\n")
+        
+        text_widget.see(tk.END)
+        text_widget.config(state=tk.DISABLED)
