@@ -29,5 +29,14 @@
             }
         ],
         "juego": "General"
+    },
+    {
+        "id": 3,
+        "usuario": "vice",
+        "fecha": "2025-05-29",
+        "titulo": "aaa",
+        "contenido": "aaaa",
+        "juego": "Counter-Strike",
+        "respuestas": []
     }
 ]
