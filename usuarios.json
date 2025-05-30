@@ -11,5 +11,9 @@
     "vice": {
         "email": "vice@gmail.com",
         "clave": "meganouncalvo"
+    },
+    "jose": {
+        "email": "jose@gmail.com",
+        "clave": "jose"
     }
 }
