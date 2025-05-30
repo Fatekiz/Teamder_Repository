@@ -1,0 +1,46 @@
+[
+    {
+        "id": 1,
+        "nombre": "Equipo Rankeds",
+        "juego": "League of Legends",
+        "creador": "fatekiz",
+        "descripcion": "Buscamos jugadores para rankeds en League of Legends",
+        "fecha_creacion": "2025-04-10",
+        "miembros": [
+            "fatekiz",
+            "vice"
+        ],
+        "capacidad": 5,
+        "estado": "abierta",
+        "requisitos": "Platino+"
+    },
+    {
+        "id": 2,
+        "nombre": "Torneo Valorant",
+        "juego": "Valorant",
+        "creador": "admin777",
+        "descripcion": "Sala para organizar equipo para el torneo del fin de semana",
+        "fecha_creacion": "2025-04-11",
+        "miembros": [
+            "admin777",
+            "vice"
+        ],
+        "capacidad": 5,
+        "estado": "abierta",
+        "requisitos": "Cualquier nivel"
+    },
+    {
+        "id": 3,
+        "nombre": "causa",
+        "juego": "League of Legends",
+        "creador": "vice",
+        "descripcion": "asdasdasdd",
+        "fecha_creacion": "2025-05-29",
+        "miembros": [
+            "vice"
+        ],
+        "capacidad": 10,
+        "estado": "cerrada",
+        "requisitos": "master"
+    }
+]

@@ -9,7 +9,8 @@ class AdminWindow:
         self.usuario = usuario
         tk.Label(master, text=f"Bienvenido, {usuario} (Admin)", font=("Arial", 14)).pack(pady=10)
         tk.Button(master, text="Ver todos los usuarios", command=self.ver_usuarios).pack(pady=5)
-        tk.Button(master, text="Acceder al Foro", command=self.abrir_foro).pack(pady=5)       
+        tk.Button(master, text="Acceder al Foro", command=self.abrir_foro).pack(pady=5)
+        tk.Button(master, text="Salas de Juego", command=self.abrir_salas).pack(pady=5)
         tk.Button(master, text="Cerrar", command=self.master.destroy).pack(pady=5)
 
     def ver_usuarios(self):
@@ -30,3 +31,12 @@ class AdminWindow:
             ForoWindow(foro_window, self.usuario, is_admin=True)
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo abrir el foro: {e}")
+            
+    def abrir_salas(self):
+        try:
+            from salas_window import SalasWindow
+            salas_window = tk.Toplevel(self.master)
+            # Pasamos is_admin=True para darle privilegios de administrador en las salas
+            SalasWindow(salas_window, self.usuario, is_admin=True)
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo abrir las salas: {e}")
