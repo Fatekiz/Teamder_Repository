@@ -1,0 +1,14 @@
+[
+    {
+        "id": 1,
+        "titulo": "Torneo de fin de semana de LOL",
+        "descripcion": "UNANSE MALCRIADOS AL EVENTO Q YA LES DIJE DE LOL \nO VERAN LA FURIA DE JACKVEIDER >:V",
+        "fecha": "2025-05-31",
+        "hora": "16:00",
+        "creador": "fatekiz",
+        "inscritos": [
+            "fatekiz",
+            "jose"
+        ]
+    }
+]

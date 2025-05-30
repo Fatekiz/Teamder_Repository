@@ -10,5 +10,29 @@
         "destinatario": "jose",
         "mensaje": "hola",
         "fecha": "2025-05-29 23:54:45"
+    },
+    {
+        "remitente": "jose",
+        "destinatario": "fatekiz",
+        "mensaje": "TE AMO TANTOOOO HMMM TE AMO DEMASIADO COSITA LINDA!",
+        "fecha": "2025-05-30 08:56:59"
+    },
+    {
+        "remitente": "fatekiz",
+        "destinatario": "jose",
+        "mensaje": "brO? esto es para el proyecto dde tpa? ...",
+        "fecha": "2025-05-30 08:57:39"
+    },
+    {
+        "remitente": "fatekiz",
+        "destinatario": "jose",
+        "mensaje": "loquito",
+        "fecha": "2025-05-30 08:57:43"
+    },
+    {
+        "remitente": "fatekiz",
+        "destinatario": "jose",
+        "mensaje": "te amo",
+        "fecha": "2025-05-30 08:57:45"
     }
 ]
