@@ -1,0 +1,14 @@
+[
+    {
+        "usuario": "vice",
+        "categoria": "Bug",
+        "contenido": "no funciona el boton de cambio de contrase\u00f1a",
+        "estado": "resuelto"
+    },
+    {
+        "usuario": "vice",
+        "categoria": "Acceder al foro",
+        "contenido": "no puedo acceder al foro",
+        "estado": "resuelto"
+    }
+]

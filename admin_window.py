@@ -11,6 +11,7 @@ class AdminWindow:
         tk.Button(master, text="Ver todos los usuarios", command=self.ver_usuarios).pack(pady=5)
         tk.Button(master, text="Acceder al Foro", command=self.abrir_foro).pack(pady=5)
         tk.Button(master, text="Salas de Juego", command=self.abrir_salas).pack(pady=5)
+        tk.Button(master, text="Gestionar Reportes", command=self.abrir_reportes).pack(pady=5)
         tk.Button(master, text="Cerrar", command=self.master.destroy).pack(pady=5)
 
     def ver_usuarios(self):
@@ -40,3 +41,12 @@ class AdminWindow:
             SalasWindow(salas_window, self.usuario, is_admin=True)
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo abrir las salas: {e}")
+    
+    def abrir_reportes(self):
+        try:
+            from reportes_admin_window import ReportesAdminWindow
+            ventana = tk.Toplevel(self.master)
+            ReportesAdminWindow(ventana)
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo abrir los reportes: {e}")
+        
