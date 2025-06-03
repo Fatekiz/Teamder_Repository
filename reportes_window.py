@@ -11,7 +11,7 @@ class ReportesWindow:
         self.usuario = usuario
 
         tk.Label(master, text="Selecciona la categoría del problema:", font=("Arial", 12)).pack(pady=5)
-        self.categorias = ["Bug", "Ajustes de perfil", "Acceder al foro", "Salas de juego", "Eventos"]
+        self.categorias = ["Bug", "Ajustes de Perfil", "Acceder al Foro", "Salas de Juego", "Eventos"]
         self.categoria_seleccionada = tk.StringVar()
         self.categoria_seleccionada.set(self.categorias[0])  # valor por defecto
         tk.OptionMenu(master, self.categoria_seleccionada, *self.categorias).pack(pady=5)
