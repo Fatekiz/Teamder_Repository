@@ -10,5 +10,11 @@
         "categoria": "Acceder al foro",
         "contenido": "no puedo acceder al foro",
         "estado": "resuelto"
+    },
+    {
+        "usuario": "vice",
+        "categoria": "Ajustes de Perfil",
+        "contenido": "no puedo cambiar contrase\u00f1a",
+        "estado": "pendiente"
     }
 ]
