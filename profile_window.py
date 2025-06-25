@@ -18,23 +18,27 @@ class ProfileWindow:
 
 
 
-    def ver_datos(self,):
+    def ver_datos(self):
         self.info_profile_window = tk.Toplevel(self.master)
-        self.info_profile_window.geometry("400x300")
+        self.info_profile_window.geometry("400x500")
         self.info_profile_window.title("Ver y Editar Datos de Usuario / Eliminar Cuenta")
+
+        # Mostrar avatar
+        self.mostrar_avatar(self.info_profile_window)
+        tk.Button(self.info_profile_window, text="Cambiar Avatar", command=self.cambiar_avatar).pack(pady=5)
+        tk.Button(self.info_profile_window, text="Eliminar Avatar", command=self.eliminar_avatar).pack(pady=5)
 
         # cargar datos del usuario desde el JSON
         with open("usuarios.json", "r") as archivo:
             datos = json.load(archivo)
-
         info_usuario = datos.get(self.usuario, {})
-
         email_actual = info_usuario.get("email", "No registrado")
 
         # Mostrando los datos de la cuenta
         tk.Label(self.info_profile_window, text=f"Nombre de Usuario: {self.usuario}", font=("Arial", 12)).pack(pady=10)
         tk.Label(self.info_profile_window, text=f"Email: {email_actual}", font=("Arial", 12)).pack(pady=10)
         tk.Button(self.info_profile_window, text="Editar Datos", command=self.editar_datos, font=("Arial",12)).pack(pady=10)
+        tk.Button(self.info_profile_window, text="Eliminar Cuenta", command=self.eliminar_cuenta, font=("Arial",12)).pack(pady=10)
 
     
     def editar_datos(self):
@@ -287,13 +291,3 @@ class ProfileWindow:
         with open("usuarios.json", "w") as archivo:
             json.dump(datos, archivo, indent=4)
         messagebox.showinfo("Éxito", "Avatar eliminado correctamente.")       
-    def ver_datos(self):
-        self.info_profile_window = tk.Toplevel(self.master)
-        self.info_profile_window.geometry("400x400")
-        self.info_profile_window.title("Ver y Editar Datos de Usuario / Eliminar Cuenta")
-
-        # Mostrar avatar
-        self.mostrar_avatar(self.info_profile_window)
-
-        tk.Button(self.info_profile_window, text="Cambiar Avatar", command=self.cambiar_avatar).pack(pady=5)
-        tk.Button(self.info_profile_window, text="Eliminar Avatar", command=self.eliminar_avatar).pack(pady=5)

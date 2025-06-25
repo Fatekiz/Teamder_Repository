@@ -6,6 +6,8 @@ from salas_window import SalasWindow
 from eventos_window import EventosWindow
 from reportes_window import ReportesWindow
 from mis_reportes_window import MisReportesWindow
+from calendario_window import CalendarioWindow
+
 
 class MainWindow:
     def __init__(self, master, usuario):
@@ -24,6 +26,7 @@ class MainWindow:
         tk.Button(master, text="Acceder al Foro", command=self.abrir_foro).pack(pady=10)
         tk.Button(master, text="Salas de Juego", command=self.abrir_salas).pack(pady=10)
         tk.Button(master, text="Eventos", command=self.abrir_eventos).pack(pady=10)
+        tk.Button(master, text="Mi Calendario", command=self.abrir_calendario).pack(pady=10)
         tk.Button(master, text="Reportar Problema", command=self.abrir_reportes).pack(pady=10)
         tk.Button(master, text="Mis Reportes", command=self.abrir_mis_reportes).pack(pady=5)
 
@@ -51,4 +54,8 @@ class MainWindow:
     
     def abrir_mis_reportes(self):
         MisReportesWindow(tk.Toplevel(self.master), self.usuario)
+
+    def abrir_calendario(self):
+        CalendarioWindow(tk.Toplevel(self.master), self.usuario)
+
 

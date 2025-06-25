@@ -6,11 +6,12 @@
     },
     "fatekiz": {
         "email": "benja@gmail.com",
-        "clave": "rocioteamo"
+        "clave": "rocioteamo",
+        "avatar": "avatars/fatekiz.jpeg"
     },
     "vice": {
         "email": "vice@gmail.com",
-        "clave": "sofiateextra\u00f1o"
+        "clave": "sofiateextra\u00c3\u00b1o"
     },
     "jose": {
         "email": "jose@gmail.com",

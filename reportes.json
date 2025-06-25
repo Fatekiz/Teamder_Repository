@@ -16,5 +16,11 @@
         "categoria": "Ajustes de Perfil",
         "contenido": "no puedo cambiar contrase\u00f1a",
         "estado": "pendiente"
+    },
+    {
+        "usuario": "fatekiz",
+        "categoria": "Bug",
+        "contenido": "Porque no me puedo poner de nombre ElMaquinaDeLaReproduccion777 ??",
+        "estado": "pendiente"
     }
 ]
