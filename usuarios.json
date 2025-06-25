@@ -15,5 +15,10 @@
     "jose": {
         "email": "jose@gmail.com",
         "clave": "jose"
+    },
+    "PeepoClown": {
+        "email": "peepo2@gmail.com",
+        "clave": "1234",
+        "avatar": ""
     }
 }

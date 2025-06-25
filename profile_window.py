@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
 import json
-
-
+from tkinter import filedialog
+from PIL import Image, ImageTk
+import os
 class ProfileWindow:
     def __init__(self, master, usuario):
         self.master = master
@@ -238,3 +239,61 @@ class ProfileWindow:
         messagebox.showinfo("Cuenta eliminada", "Tu cuenta ha sido eliminada correctamente.")
         self.eliminar_cuenta_window.destroy()
         self.master.destroy()
+    def mostrar_avatar(self, frame):
+        with open("usuarios.json", "r") as archivo:
+            datos = json.load(archivo)
+        avatar_path = datos.get(self.usuario, {}).get("avatar", "avatars/default_avatar.png")
+        # Si no hay avatar o el archivo no existe, usar el avatar por defecto
+        if not avatar_path or not os.path.exists(avatar_path):
+            avatar_path = "avatars/default_avatar.png"
+        if os.path.exists(avatar_path):
+            img = Image.open(avatar_path)
+            img = img.resize((100, 100))
+            self.avatar_img = ImageTk.PhotoImage(img)
+            tk.Label(frame, image=self.avatar_img).pack(pady=5)
+        else:
+            tk.Label(frame, text="Sin avatar").pack(pady=5)
+
+    def cambiar_avatar(self):
+        file_path = filedialog.askopenfilename(
+            title="Selecciona una imagen",
+            filetypes=[("Imágenes", "*.png;*.jpg;*.jpeg;*.gif")]
+        )
+        if not file_path:
+            return
+        # Carpeta para avatares
+        if not os.path.exists("avatars"):
+            os.makedirs("avatars")
+        ext = os.path.splitext(file_path)[1]
+        new_path = f"avatars/{self.usuario}{ext}"
+        # Copiar imagen seleccionada
+        with open(file_path, "rb") as src, open(new_path, "wb") as dst:
+            dst.write(src.read())
+        # Guardar ruta en JSON
+        with open("usuarios.json", "r") as archivo:
+            datos = json.load(archivo)
+        datos[self.usuario]["avatar"] = new_path
+        with open("usuarios.json", "w") as archivo:
+            json.dump(datos, archivo, indent=4)
+        messagebox.showinfo("Éxito", "Avatar actualizado correctamente.")
+
+    def eliminar_avatar(self):
+        with open("usuarios.json", "r") as archivo:
+            datos = json.load(archivo)
+        avatar_path = datos.get(self.usuario, {}).get("avatar")
+        if avatar_path and os.path.exists(avatar_path):
+            os.remove(avatar_path)
+        datos[self.usuario]["avatar"] = ""
+        with open("usuarios.json", "w") as archivo:
+            json.dump(datos, archivo, indent=4)
+        messagebox.showinfo("Éxito", "Avatar eliminado correctamente.")       
+    def ver_datos(self):
+        self.info_profile_window = tk.Toplevel(self.master)
+        self.info_profile_window.geometry("400x400")
+        self.info_profile_window.title("Ver y Editar Datos de Usuario / Eliminar Cuenta")
+
+        # Mostrar avatar
+        self.mostrar_avatar(self.info_profile_window)
+
+        tk.Button(self.info_profile_window, text="Cambiar Avatar", command=self.cambiar_avatar).pack(pady=5)
+        tk.Button(self.info_profile_window, text="Eliminar Avatar", command=self.eliminar_avatar).pack(pady=5)
