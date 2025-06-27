@@ -7,15 +7,25 @@
     "fatekiz": {
         "email": "benja@gmail.com",
         "clave": "rocioteamo",
-        "avatar": "avatars/fatekiz.jpeg"
+        "avatar": "avatars/fatekiz.jpeg",
+        "juegos_favoritos": [
+            "Valorant",
+            "Fortnite"
+        ],
+        "juegos_personalizados": [
+            "Phasmofobia"
+        ]
     },
     "vice": {
         "email": "vice@gmail.com",
         "clave": "tratra",
         "juegos_favoritos": [
-            "Minecraft",
+            "Valorant",
             "Fortnite",
-            "Valorant"
+            "Minecraft"
+        ],
+        "juegos_personalizados": [
+            "Phasmofobia"
         ]
     },
     "jose": {
