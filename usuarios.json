@@ -11,11 +11,21 @@
     },
     "vice": {
         "email": "vice@gmail.com",
-        "clave": "sofiateextra\u00c3\u00b1o"
+        "clave": "tratra",
+        "juegos_favoritos": [
+            "Minecraft",
+            "Fortnite",
+            "Valorant"
+        ]
     },
     "jose": {
         "email": "jose@gmail.com",
-        "clave": "jose"
+        "clave": "jose",
+        "juegos_favoritos": [
+            "Minecraft",
+            "League of Legends",
+            "Valorant"
+        ]
     },
     "PeepoClown": {
         "email": "peepo2@gmail.com",
