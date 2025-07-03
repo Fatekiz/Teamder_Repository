@@ -19,7 +19,11 @@
     "vice": {
         "email": "vice@gmail.com",
         "clave": "tratra",
-        "avatar": ""
+        "avatar": "",
+        "juegos_favoritos": [
+            "League of Legends"
+        ],
+        "juegos_personalizados": []
     },
     "jose": {
         "email": "jose@gmail.com",

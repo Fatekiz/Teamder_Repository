@@ -1,5 +1,7 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk
+
+# Importación de las ventanas de cada funcionalidad
 from profile_window import ProfileWindow
 from foro_window import ForoWindow
 from salas_window import SalasWindow
@@ -14,59 +16,103 @@ class MainWindow:
     def __init__(self, master, usuario):
         self.master = master
         self.master.title("Teamder - Buscar Equipos")
-        self.master.geometry("600x500")
+        
+        # Establecer un tamaño fijo para la ventana principal
+        self.master.geometry("600x700")  # Dimensiones fijas
+        self.master.minsize(600, 700)  # Tamaño mínimo de la ventana
         
 
 
         self.usuario = usuario
 
-        label_bienvenida = tk.Label(master, text=f"¡Bienvenido a Teamder, {usuario}!", font=("Arial", 14))
-        label_bienvenida.pack(pady=20)
+        # Título de bienvenida
+        ttk.Label(master, text=f"🎮 ¡Bienvenido a Teamder, {usuario}!", font=("Arial", 14, "bold")).pack(pady=20)
 
+        # === 🔧 Sección principal ===
+        frame_principal = ttk.LabelFrame(master, text="Opciones principales", padding=(10, 5))
+        frame_principal.pack(pady=10, fill="x", padx=20)
 
-        tk.Button(master, text="Acceder al Foro", command=self.abrir_foro).pack(pady=10)
-        tk.Button(master, text="🎮 Conexión Gamer", command=self.abrir_conexion_gamer).pack(pady=10)
-        tk.Button(master, text="Salas de Juego", command=self.abrir_salas).pack(pady=10)
-        tk.Button(master, text="Equipos", command=self.abrir_equipos).pack(pady=10)
-        tk.Button(master, text="Eventos", command=self.abrir_eventos).pack(pady=10)
-        tk.Button(master, text="Mi Calendario", command=self.abrir_calendario).pack(pady=10)
-        tk.Button(master, text="Ajustes de Perfil", command=self.abrir_perfil).pack(pady=10)    
-        tk.Button(master, text="Reportar Problema", command=self.abrir_reportes).pack(pady=10)
-        tk.Button(master, text="Mis Reportes", command=self.abrir_mis_reportes).pack(pady=5)    
-        
-        
+        ttk.Button(frame_principal, text="👤 Ajustes de Perfil", command=self.abrir_perfil).pack(fill="x", pady=5)
+        ttk.Button(frame_principal, text="🎮 Conexión Gamer", command=self.abrir_conexion_gamer).pack(fill="x", pady=5)
+        ttk.Button(frame_principal, text="💬 Acceder al Foro", command=self.abrir_foro).pack(fill="x", pady=5)
 
+        # === 🎲 Otras funcionalidades ===
+        frame_secundario = ttk.LabelFrame(master, text="Actividades", padding=(10, 5))
+        frame_secundario.pack(pady=10, fill="x", padx=20)
 
-        tk.Button(master, text="Salir", command=master.quit).pack(pady=10)
-        
-        # Aquí irán más elementos para buscar equipos o juegos
-        label_info = tk.Label(master, text="(Aquí puedes buscar jugadores, crear grupo, etc...)")
-        label_info.pack()
+        ttk.Button(frame_secundario, text="🕹️ Salas de Juego", command=self.abrir_salas).pack(fill="x", pady=5)
+        ttk.Button(frame_secundario, text="📅 Eventos", command=self.abrir_eventos).pack(fill="x", pady=5)
+        ttk.Button(frame_secundario, text="📆 Mi Calendario", command=self.abrir_calendario).pack(fill="x", pady=5)
 
+        # === 💼 Equipos ===
+        frame_equipos = ttk.LabelFrame(master, text="Equipos", padding=(10, 5))
+        frame_equipos.pack(pady=10, fill="x", padx=20)
+
+        ttk.Button(frame_equipos, text="⚙️ Gestionar Equipos", command=self.abrir_equipos).pack(fill="x", pady=5)
+
+        # === 🛠️ Soporte ===
+        frame_soporte = ttk.LabelFrame(master, text="Soporte", padding=(10, 5))
+        frame_soporte.pack(pady=10, fill="x", padx=20)
+
+        ttk.Button(frame_soporte, text="⚠️ Reportar Problema", command=self.abrir_reportes).pack(fill="x", pady=5)
+        ttk.Button(frame_soporte, text="📝 Mis Reportes", command=self.abrir_mis_reportes).pack(fill="x", pady=5)
+
+        # === 🚪 Salida === (Este botón estará al final)
+        ttk.Button(master, text="🚪 Salir", command=master.quit, width=25).pack(pady=15)
+
+        ttk.Label(master, text="(Aquí puedes buscar jugadores, crear grupo, etc...)").pack()
+
+    # Funciones para abrir cada ventana
     def abrir_perfil(self):
-        ProfileWindow(tk.Toplevel(self.master), self.usuario)
-        
+        top = tk.Toplevel(self.master)
+        top.geometry("600x400")
+        top.resizable(False, False)  # Deshabilitar redimensionamiento
+        ProfileWindow(top, self.usuario)
+
     def abrir_foro(self):
-        ForoWindow(tk.Toplevel(self.master), self.usuario)
-        
+        top = tk.Toplevel(self.master)
+        top.geometry("600x400")
+        top.resizable(False, False)  # Deshabilitar redimensionamiento
+        ForoWindow(top, self.usuario)
+
     def abrir_salas(self):
-        SalasWindow(tk.Toplevel(self.master), self.usuario)
+        top = tk.Toplevel(self.master)
+        top.geometry("600x400")
+        top.resizable(False, False)  # Deshabilitar redimensionamiento
+        SalasWindow(top, self.usuario)
 
     def abrir_eventos(self):
-        EventosWindow(tk.Toplevel(self.master), self.usuario)
-    
+        top = tk.Toplevel(self.master)
+        top.geometry("600x400")
+        top.resizable(False, False)  # Deshabilitar redimensionamiento
+        EventosWindow(top, self.usuario)
+
     def abrir_reportes(self):
-        ReportesWindow(tk.Toplevel(self.master), self.usuario)
-    
+        top = tk.Toplevel(self.master)
+        top.geometry("600x400")
+        top.resizable(False, False)  # Deshabilitar redimensionamiento
+        ReportesWindow(top, self.usuario)
+
     def abrir_mis_reportes(self):
-        MisReportesWindow(tk.Toplevel(self.master), self.usuario)
+        top = tk.Toplevel(self.master)
+        top.geometry("600x400")
+        top.resizable(False, False)  # Deshabilitar redimensionamiento
+        MisReportesWindow(top, self.usuario)
 
     def abrir_calendario(self):
-        CalendarioWindow(tk.Toplevel(self.master), self.usuario)
-    
-    def abrir_conexion_gamer(self):
-        abrir_conexion_gamer(self.master, self.usuario)
-        
-    def abrir_equipos(self):
-        abrir_crud_equipos(self.master, self.usuario)
+        top = tk.Toplevel(self.master)
+        top.geometry("600x400")
+        top.resizable(False, False)  # Deshabilitar redimensionamiento
+        CalendarioWindow(top, self.usuario)
 
+    def abrir_conexion_gamer(self):
+        top = tk.Toplevel(self.master)
+        top.geometry("600x400")
+        top.resizable(False, False)  # Deshabilitar redimensionamiento
+        abrir_conexion_gamer(top, self.usuario)
+
+    def abrir_equipos(self):
+        top = tk.Toplevel(self.master)
+        top.geometry("600x400")
+        top.resizable(False, False)  # Deshabilitar redimensionamiento
+        abrir_crud_equipos(top, self.usuario)
