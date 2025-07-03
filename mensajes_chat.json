@@ -34,5 +34,11 @@
         "destinatario": "jose",
         "mensaje": "te amo",
         "fecha": "2025-05-30 08:57:45"
+    },
+    {
+        "remitente": "vice",
+        "destinatario": "fatekiz",
+        "mensaje": "hola",
+        "fecha": "2025-06-27 09:11:45"
     }
 ]

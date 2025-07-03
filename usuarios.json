@@ -19,14 +19,7 @@
     "vice": {
         "email": "vice@gmail.com",
         "clave": "tratra",
-        "juegos_favoritos": [
-            "Valorant",
-            "Fortnite",
-            "Minecraft"
-        ],
-        "juegos_personalizados": [
-            "Phasmofobia"
-        ]
+        "avatar": ""
     },
     "jose": {
         "email": "jose@gmail.com",
