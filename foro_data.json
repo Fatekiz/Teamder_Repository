@@ -7,27 +7,5 @@
         "contenido": "¡Bienvenidos al foro de Tkinder!",
         "respuestas": [],
         "juego": "General"
-    },
-    {
-        "id": 2,
-        "usuario": "JugadorPro",
-        "fecha": "2025-04-10",
-        "titulo": "Busco equipo",
-        "contenido": "Busco equipo para torneo de fin de semana",
-        "respuestas": [
-            {
-                "id": 1,
-                "usuario": "GameMaster",
-                "fecha": "2025-04-10",
-                "contenido": "Yo tengo un grupo, contáctame"
-            },
-            {
-                "id": 2,
-                "usuario": "Novatillo",
-                "fecha": "2025-04-11",
-                "contenido": "¿De qué nivel es el torneo?"
-            }
-        ],
-        "juego": "General"
     }
 ]

@@ -548,7 +548,7 @@ class SalasWindow:
         # Crear ventana de edición
         ventana_editar = tk.Toplevel(self.master)
         ventana_editar.title(f"Editar sala: {sala['nombre']}")
-        ventana_editar.geometry("600x500")
+        ventana_editar.geometry("1000x800")
         ventana_editar.grab_set()  # Modal
         
         # Frame principal con scrollbar
