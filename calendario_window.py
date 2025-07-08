@@ -47,7 +47,10 @@ class CalendarioWindow:
     def actualizar_lista(self):
         self.lista.delete(*self.lista.get_children())
         for i, rec in enumerate(self.recordatorios):
-            self.lista.insert("", "end", iid=str(i), values=(rec["fecha"], rec["titulo"]))
+            fecha_almacenada = rec["fecha"]
+            dia, mes, ano = fecha_almacenada.split("-")
+            fecha_mostrar = f"{dia}-{mes}-{ano}"
+            self.lista.insert("", "end", iid=str(i), values=(fecha_mostrar, rec["titulo"]))
 
     def agregar_recordatorio(self):
         self.ventana_edicion(None)
@@ -62,13 +65,13 @@ class CalendarioWindow:
     def ventana_edicion(self, index):
         ventana = tk.Toplevel(self.master)
         ventana.title("Editar Recordatorio" if index is not None else "Nuevo Recordatorio")
-        ventana.geometry("400x350")
+        ventana.geometry("400x400")
 
         tk.Label(ventana, text="Título:").pack(pady=5)
         entry_titulo = tk.Entry(ventana)
         entry_titulo.pack(pady=5)
 
-        tk.Label(ventana, text="Fecha (YYYY-MM-DD):").pack(pady=5)
+        tk.Label(ventana, text="Fecha (DD-MM-YYYY):").pack(pady=5)
         entry_fecha = tk.Entry(ventana)
         entry_fecha.pack(pady=5)
 
@@ -92,14 +95,16 @@ class CalendarioWindow:
                 return
 
             try:
-                datetime.strptime(fecha, "%Y-%m-%d")
+                dia, mes, ano = fecha.split("-")
+                fecha_almacenamiento = f"{dia}-{mes}-{ano}"
+                datetime.strptime(fecha_almacenamiento, "%d-%m-%Y")
             except ValueError:
-                messagebox.showerror("Error", "Formato de fecha inválido. Usa YYYY-MM-DD.")
+                messagebox.showerror("Error", "Formato de fecha inválido. Usa DD-MM-YYYY.")
                 return
 
             nuevo = {
                 "titulo": titulo,
-                "fecha": fecha,
+                "fecha": fecha_almacenamiento,
                 "nota": nota
             }
 

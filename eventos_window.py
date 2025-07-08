@@ -64,7 +64,7 @@ class EventosWindow:
         text_descripcion = tk.Text(ventana_nuevo, height=5)
         text_descripcion.pack(pady=5)
 
-        tk.Label(ventana_nuevo, text="Fecha (YYYY-MM-DD):").pack(pady=5)
+        tk.Label(ventana_nuevo, text="Fecha (DD-MM-YYYY):").pack(pady=5)
         entry_fecha = tk.Entry(ventana_nuevo)
         entry_fecha.pack(pady=5)
 
@@ -83,7 +83,7 @@ class EventosWindow:
                 return
 
             try:
-                datetime.datetime.strptime(fecha, "%Y-%m-%d")
+                datetime.datetime.strptime(fecha, "%d-%m-%Y")
                 datetime.datetime.strptime(hora, "%H:%M")
             except ValueError:
                 messagebox.showerror("Error", "Fecha u hora inválida.")
@@ -211,7 +211,7 @@ class EventosWindow:
                 return
 
             try:
-                datetime.datetime.strptime(fecha, "%Y-%m-%d")
+                datetime.datetime.strptime(fecha, "%d-%m-%Y")
                 datetime.datetime.strptime(hora, "%H:%M")
             except ValueError:
                 messagebox.showerror("Error", "Fecha u hora inválida.")

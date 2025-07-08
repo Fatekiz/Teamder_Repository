@@ -37,6 +37,12 @@
     "PeepoClown": {
         "email": "peepo2@gmail.com",
         "clave": "1234",
-        "avatar": "avatars/PeepoClown.png"
+        "avatar": "avatars/PeepoClown.png",
+        "juegos_favoritos": [
+            "League of Legends",
+            "Minecraft",
+            "Counter Strike 2"
+        ],
+        "juegos_personalizados": []
     }
 }

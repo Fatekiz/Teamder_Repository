@@ -11,5 +11,14 @@
             "jose",
             "PeepoClown"
         ]
+    },
+    {
+        "id": 2,
+        "titulo": "Evento",
+        "descripcion": "evento",
+        "fecha": "12-12-2012",
+        "hora": "16:21",
+        "creador": "PeepoClown",
+        "inscritos": []
     }
 ]
