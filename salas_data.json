@@ -28,19 +28,5 @@
         "capacidad": 5,
         "estado": "abierta",
         "requisitos": "Cualquier nivel"
-    },
-    {
-        "id": 3,
-        "nombre": "causa",
-        "juego": "League of Legends",
-        "creador": "vice",
-        "descripcion": "asdasdasdd",
-        "fecha_creacion": "2025-05-29",
-        "miembros": [
-            "vice"
-        ],
-        "capacidad": 10,
-        "estado": "cerrada",
-        "requisitos": "master"
     }
 ]

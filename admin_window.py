@@ -12,6 +12,8 @@ class AdminWindow:
         tk.Button(master, text="Acceder al Foro", command=self.abrir_foro).pack(pady=5)
         tk.Button(master, text="Salas de Juego", command=self.abrir_salas).pack(pady=5)
         tk.Button(master, text="Gestionar Reportes", command=self.abrir_reportes).pack(pady=5)
+        tk.Button(master, text="Gestionar Equipos", command=self.abrir_equipos).pack(pady=5)
+        tk.Button(master, text="Gestionar Eventos", command=self.abrir_eventos).pack(pady=5)
         tk.Button(master, text="Cerrar", command=self.master.destroy).pack(pady=5)
 
     def ver_usuarios(self):
@@ -49,4 +51,19 @@ class AdminWindow:
             ReportesAdminWindow(ventana)
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo abrir los reportes: {e}")
-        
+
+    def abrir_equipos(self):
+        try:
+            from team_crud import abrir_crud_equipos
+            ventana = tk.Toplevel(self.master)
+            abrir_crud_equipos(ventana, self.usuario)
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo abrir la gestión de equipos: {e}")
+
+    def abrir_eventos(self):
+        try:
+            from eventos_window import EventosWindow
+            ventana = tk.Toplevel(self.master)
+            EventosWindow(ventana, self.usuario, is_admin=True)
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo abrir la gestión de eventos: {e}")

@@ -12,7 +12,7 @@ JUEGOS_DISPONIBLES = [
 RUTA_USUARIOS = "usuarios.json"
 
 def abrir_conexion_gamer(master, usuario_actual):
-    ventana = tk.Toplevel(master)
+    ventana = master
     ventana.title("Conexión Gamer")
     ventana.geometry("600x600")
 

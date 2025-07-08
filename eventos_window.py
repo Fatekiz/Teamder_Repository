@@ -6,9 +6,10 @@ import os
 import datetime
 
 class EventosWindow:
-    def __init__(self, master, usuario):
+    def __init__(self, master, usuario,is_admin):
         self.master = master
         self.usuario = usuario
+        self.is_admin = is_admin
         self.master.title("Eventos")
         self.master.geometry("700x500")
         self.archivo = "eventos.json"
@@ -160,9 +161,8 @@ class EventosWindow:
             tk.Label(ventana_detalle, text="Ya estás inscrito en este evento.").pack(pady=5)
             tk.Button(ventana_detalle, text="Desinscribirme", command=desinscribirse).pack(pady=5)
 
-
-            # Si el usuario es el creador, puede editar/eliminar
-        if evento["creador"] == self.usuario:
+        # Si el usuario es el creador o admin, puede editar/eliminar
+        if self.is_admin or self.usuario == evento["creador"]:
             def editar_evento():
                 ventana_detalle.destroy()
                 self.abrir_edicion_evento(evento)

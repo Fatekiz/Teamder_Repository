@@ -42,6 +42,8 @@ def _guardar_equipos(equipos):
 def abrir_crud_equipos(master: tk.Tk | tk.Toplevel, usuario_actual: str) -> None:
     """Abre la ventana de gestión de equipos sobre el *master* indicado."""
 
+    is_admin = str(usuario_actual).lower() == "admin" or getattr(usuario_actual, "is_admin", False)
+
     # ---------------------------------------------------------------------
     # Helpers internos (definidos dentro para acceder a *equipos* y widgets)
     # ---------------------------------------------------------------------
@@ -54,8 +56,10 @@ def abrir_crud_equipos(master: tk.Tk | tk.Toplevel, usuario_actual: str) -> None
 
     def _crear_equipo():
         nombre = simpledialog.askstring("Nuevo Equipo", "Nombre del equipo:", parent=ventana)
-        if not nombre:
+        if not nombre or not nombre.strip():
+            messagebox.showerror("Error", "El nombre del equipo no puede estar vacío.")
             return
+        nombre = nombre.strip()
         # Comprobar unicidad (case‑insensitive)
         if any(eq["nombre"].lower() == nombre.lower() for eq in equipos):
             messagebox.showerror("Error", "Ya existe un equipo con ese nombre.")
@@ -99,8 +103,9 @@ def abrir_crud_equipos(master: tk.Tk | tk.Toplevel, usuario_actual: str) -> None
         equipo = _seleccionar_equipo()
         if not equipo:
             return
-        if usuario_actual != equipo["creador"]:
-            messagebox.showerror("Permiso denegado", "Solo el creador puede eliminar el equipo.")
+        # Permitir al admin eliminar cualquier equipo
+        if not is_admin and usuario_actual != equipo["creador"]:
+            messagebox.showerror("Permiso denegado", "Solo el creador o un administrador pueden eliminar el equipo.")
             return
         if messagebox.askyesno("Confirmar", f"¿Eliminar el equipo '{equipo['nombre']}' definitivamente?"):
             equipos.remove(equipo)
@@ -135,7 +140,7 @@ def abrir_crud_equipos(master: tk.Tk | tk.Toplevel, usuario_actual: str) -> None
     # ---------------------------------------------------------------------
     # Ventana y widgets
     # ---------------------------------------------------------------------
-    ventana = tk.Toplevel(master)
+    ventana = master
     ventana.title("Gestión de Equipos")
     ventana.geometry("450x550")
     ventana.resizable(False, False)
@@ -165,7 +170,3 @@ def abrir_crud_equipos(master: tk.Tk | tk.Toplevel, usuario_actual: str) -> None
     tk.Button(frame_mid, text="Salir", width=10, command=_salir_equipo).grid(row=0, column=1, padx=3, pady=2)
 
     tk.Button(ventana, text="Cerrar", width=10, command=ventana.destroy).pack(pady=10)
-
-    ventana.transient(master)
-    ventana.grab_set()
-    ventana.wait_window()

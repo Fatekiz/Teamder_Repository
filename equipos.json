@@ -1,11 +1,11 @@
 [
     {
-        "id": 1,
-        "nombre": "    ",
-        "descripcion": "        ",
-        "creador": "vice",
+        "id": 2,
+        "nombre": "Peepo",
+        "descripcion": "Juegos",
+        "creador": "PeepoClown",
         "miembros": [
-            "vice"
+            "PeepoClown"
         ]
     }
 ]
