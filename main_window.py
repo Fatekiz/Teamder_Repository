@@ -85,7 +85,9 @@ class MainWindow:
         top = tk.Toplevel(self.master)
         top.geometry("600x400")
         top.resizable(False, False)  # Deshabilitar redimensionamiento
-        EventosWindow(top, self.usuario)
+        # Cambia esto según tu lógica de admin
+        is_admin = getattr(self, "is_admin", False)
+        EventosWindow(top, self.usuario, is_admin)
 
     def abrir_reportes(self):
         top = tk.Toplevel(self.master)
